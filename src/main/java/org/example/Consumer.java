@@ -8,11 +8,15 @@ import org.apache.avro.io.DecoderFactory;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Properties;
+
 
 public class Consumer {
     Schema schema ;
@@ -26,6 +30,7 @@ public class Consumer {
 
     //metodo che legge i dati dal sensore
     public void readData() throws IOException {
+        Logger.getRootLogger().setLevel(Level.OFF);
         Properties props = new Properties();
         props.put("bootstrap.servers", "magentatest.servicebus.windows.net:9093");
         props.put("security.protocol", "SASL_SSL");
