@@ -64,19 +64,22 @@ public class Consumer {
             consumer.close();
         }
     }
+
+
+
     //metodo che deserializza i dati ricevuti, li traduce in un oggetto messaggio che memorizza in una lista di messaggi
     public void deserialize(ConsumerRecord<String, byte[]> record) throws IOException {
         Decoder decoder = DecoderFactory.get().binaryDecoder(record.value(), null);
         GenericRecord r= this.datumReader.read(null, decoder);
 
         Message.MessageType message_type = Message.MessageType.valueOf(r.get(0).toString());
-        int message_id =Integer.valueOf(r.get(1).toString());
+        int message_id =Integer.parseInt(r.get(1).toString());
         String station_name =String.valueOf(r.get(2));
         String timestamp=String.valueOf(r.get(3));
         String acquisition_timestamp=String.valueOf(r.get(4));
         String gps_timestamp=String.valueOf(r.get(5));
-        float latitude= Float.valueOf(r.get(6).toString());
-        float longitude= Float.valueOf(r.get(7).toString());
+        float latitude= Float.parseFloat(r.get(6).toString());
+        float longitude= Float.parseFloat(r.get(7).toString());
         ArrayList<Value> values= new ArrayList<>();
         GenericData.Array v= (GenericData.Array) r.get("values");
         for(int i=0; i<v.size(); i++ ){
@@ -91,7 +94,7 @@ public class Consumer {
         for(int i=0; i<mv.size(); i++ ){
             GenericRecord model= (GenericRecord) mv.get(i);
             ModelValues modelValue = new ModelValues();
-            modelValue.setPosition(Integer.valueOf(model.get(0).toString()));
+            modelValue.setPosition(Integer.parseInt(model.get(0).toString()));
             modelValue.setSensor_name(String.valueOf(model.get(1)));
         }
         String command = String.valueOf(r.get(10));
