@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
 
-
+enum ProjectName {UIA}
 public class Consumer {
     Schema schema ;
     DatumReader<GenericRecord> datumReader;
@@ -55,7 +55,7 @@ public class Consumer {
 
         try {
             while (true) {
-                ConsumerRecords<String, byte[]> records = consumer.poll(10);
+                ConsumerRecords<String, byte[]> records = consumer.poll(1000);
                 for (ConsumerRecord<String, byte[]> record : records) {
                     this.deserialize(record);
                 }
@@ -71,35 +71,17 @@ public class Consumer {
     public void deserialize(ConsumerRecord<String, byte[]> record) throws IOException {
         Decoder decoder = DecoderFactory.get().binaryDecoder(record.value(), null);
         GenericRecord r= this.datumReader.read(null, decoder);
+        Message message= new Message(r);
+        System.out.println(message.getMessage_id());
+        this.messageList.add(message);
+    }
 
-        Message.MessageType message_type = Message.MessageType.valueOf(r.get(0).toString());
-        int message_id =Integer.parseInt(r.get(1).toString());
-        String station_name =String.valueOf(r.get(2));
-        String timestamp=String.valueOf(r.get(3));
-        String acquisition_timestamp=String.valueOf(r.get(4));
-        String gps_timestamp=String.valueOf(r.get(5));
-        float latitude= Float.parseFloat(r.get(6).toString());
-        float longitude= Float.parseFloat(r.get(7).toString());
-        ArrayList<Value> values= new ArrayList<>();
-        GenericData.Array v= (GenericData.Array) r.get("values");
-        for(int i=0; i<v.size(); i++ ){
-            Value value= new Value();
-            GenericRecord sensor= (GenericRecord) v.get(i);
-            value.setValue(Double.parseDouble(sensor.get(0).toString()));
-            value.setSensor_name(String.valueOf(sensor.get(1)));
-            values.add(value);
+    public ArrayList<String> selectProject(ProjectName name) {
+        ArrayList<String> stationsName = new ArrayList<>();
+        if (name == ProjectName.UIA) {
+            stationsName.add("");
         }
-        ArrayList<ModelValues> modelValues= new ArrayList<>();
-        GenericData.Array mv= (GenericData.Array) r.get(9);
-        for(int i=0; i<mv.size(); i++ ){
-            GenericRecord model= (GenericRecord) mv.get(i);
-            ModelValues modelValue = new ModelValues();
-            modelValue.setPosition(Integer.parseInt(model.get(0).toString()));
-            modelValue.setSensor_name(String.valueOf(model.get(1)));
-        }
-        String command = String.valueOf(r.get(10));
-        Message message= new Message(message_type,message_id,station_name,timestamp,acquisition_timestamp,gps_timestamp,latitude,longitude,values,modelValues,command);
-        messageList.add(message);
+    return  stationsName;
     }
 
 }
