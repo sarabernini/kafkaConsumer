@@ -9,12 +9,16 @@ import java.util.ArrayList;
 public class Main {
     public static void main(String[] args) throws IOException, SQLException {
         ArrayList<Message> listOfMessage = new ArrayList<>();
-        Consumer c= new Consumer(listOfMessage);
-        //c.readData();
-        DBConnecter db= new DBConnecter(c);
+        DBConnector db= new DBConnector();
+        Project p= new Project("UIA");
+        p.getStationsNames();
+        Consumer c= new Consumer(listOfMessage, p, db);
+        c.readData();
         //db.createTable();
-        //db.dropTables();
-        db.joinTables();
+        c.addMessagesToDatabase();
 
+
+        //db.dropTables();
+        //db.joinTables();
     }
 }

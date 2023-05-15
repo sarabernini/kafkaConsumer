@@ -3,18 +3,15 @@ import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.sql.Timestamp;
 
 public class Message {
 
-    enum MessageType {DATA, STATUS, CONTROL, MODEL, EXIT}
+    enum MessageType {DATA, STATUS, CONTROL, MODEL, EXIT, NULL}
 
     //attributi
     private MessageType message_type;
-        private int message_id;
+    private int message_id;
     private String station_name;
     private java.sql.Timestamp timestamp;
     private java.sql.Timestamp acquisition_timestamp;
@@ -56,8 +53,10 @@ public class Message {
 
     //setter (controllo che gli attibuti rispettino certe condizioni e non siano nulli)
     public void setMessage_type(Object m_type) {
-        if(m_type != null && (m_type.toString() =="DATA" ||m_type.toString() == "STATUS" || m_type.toString() == "CONTROL"|| m_type.toString() == "MODEL" || m_type.toString() == "EXIT")){
+        if(m_type != null ){
             this.message_type = MessageType.valueOf(m_type.toString());
+        }else{
+            this.message_type= MessageType.NULL;
         }
     }
 
@@ -165,6 +164,45 @@ public class Message {
     public int getMessage_id() {
         return message_id;
     }
+    public MessageType getMessage_type() {
+        return message_type;
+    }
+
+    public String getStation_name() {
+        return station_name;
+    }
+
+    public Timestamp getTimestamp() {
+        return timestamp;
+    }
+
+    public Timestamp getAcquisition_timestamp() {
+        return acquisition_timestamp;
+    }
+
+    public Timestamp getGps_timestamp() {
+        return gps_timestamp;
+    }
+
+    public float getLatitude() {
+        return latitude;
+    }
+
+    public float getLongitude() {
+        return longitude;
+    }
+
+    public ArrayList<Value> getValues() {
+        return values;
+    }
+
+    public ArrayList<ModelValues> getModel() {
+        return model;
+    }
+
+    public String getCommand() {
+        return command;
+    }
 }
 
 class Value {
@@ -178,6 +216,13 @@ class Value {
     public void setSensor_name(String sensor_name) {
         this.sensor_name = sensor_name;
     }
+    public double getValue() {
+        return value;
+    }
+
+    public String getSensor_name() {
+        return sensor_name;
+    }
 }
 
 class ModelValues {
@@ -190,5 +235,11 @@ class ModelValues {
 
     public void setSensor_name(String sensor_name) {
         this.sensor_name = sensor_name;
+    }
+    public int getPosition() {
+        return position;
+    }
+    public String getSensor_name() {
+        return sensor_name;
     }
 }
