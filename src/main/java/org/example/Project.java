@@ -5,6 +5,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
@@ -59,10 +60,13 @@ public class Project {
         myReader.close();
 
     }
+    public String getProjectName() {
+        return projectName;
+    }
 
     public boolean conteins(Object o) {
         for(String station: projectStations){
-            if(station == o.toString()){
+            if(Objects.equals(station, String.valueOf(o))){
                 return true;
             }
         }

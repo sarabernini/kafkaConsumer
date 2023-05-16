@@ -32,8 +32,10 @@ public class DBConnector {
                     "time_stamp TIMESTAMP," +
                     "acquisition_timestamp TIMESTAMP," +
                     "gps_timestamp TIMESTAMP," +
-                    "latitude FLOAT(10), " +
-                    "longitude FLOAT(10));";
+                    "latitude FLOAT(15), " +
+                    "longitude FLOAT(15));" +
+                    "CREATE TABLE project ( project_name varchar(255)," +
+                    "station_name varchar(255), primary key (project_name, station_name));";
 
             stmt.executeUpdate(sql);
             System.out.println("Created table in given database...");
@@ -130,6 +132,19 @@ public class DBConnector {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void addToDatabase(Project p) {
+        for(String name: p.getProjectStations()) {
+            String sql = "INSERT INTO project (project_name, station_name) VALUES (?, ?);";
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, p.getProjectName());
+                pstmt.setString(2, name);
+                pstmt.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

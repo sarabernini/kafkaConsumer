@@ -33,6 +33,7 @@ public class Consumer {
         this.messageList = messageList;
         this.project= p;
         this.dbConnector= dbc;
+        dbc.addToDatabase(p);
     }
 
     //metodo che legge i dati dal sensore
@@ -72,10 +73,10 @@ public class Consumer {
     public void deserialize(ConsumerRecord<String, byte[]> record) throws IOException {
         Decoder decoder = DecoderFactory.get().binaryDecoder(record.value(), null);
         GenericRecord r= this.datumReader.read(null, decoder);
-       //if(project.conteins(r.get(2))){
-            Message message= new Message(r);
-            messageList.add(message);
-        //}
+        if(project.conteins(r.get(2))){
+           Message message= new Message(r);
+           messageList.add(message);
+       }
     }
 
     public void addMessagesToDatabase(){

@@ -14,7 +14,7 @@ public class Main {
         p.getStationsNames();
         Consumer c= new Consumer(listOfMessage, p, db);
         c.readData();
-        //db.createTable();
+        db.createTable();
         c.addMessagesToDatabase();
 
 
