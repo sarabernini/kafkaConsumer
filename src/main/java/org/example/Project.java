@@ -10,20 +10,28 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Project {
+    //attributi
     private String projectName;
     private URL url;
     private ArrayList<String> projectStations;
     private FileWriter file;
 
+    //costruttore
     public Project(String projectName) throws MalformedURLException {
         this.projectName = projectName;
         this.url = new URL("https://airqino-api.magentalab.it/getStations/"+projectName);
         projectStations= new ArrayList<>();
     }
+
+    //getter
     public ArrayList<String> getProjectStations() {
         return projectStations;
     }
-
+    public String getProjectName() {
+        return projectName;
+    }
+    //metodi
+    //legge i dati dei sensori relativi ad un progetto dato facendo una request http, li scrive in un file
     public void readListOfSensors() throws IOException {
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
@@ -40,6 +48,8 @@ public class Project {
             e.printStackTrace();
         }
     }
+
+    //prende i nomi dei sensori e li inserisce in un lista
     public void getStationsNames() throws FileNotFoundException {
         projectStations.clear();
         File readebleFile= new File("sensors"+projectName+".txt");
@@ -60,11 +70,13 @@ public class Project {
         myReader.close();
 
     }
-    public String getProjectName() {
-        return projectName;
+    //aggiorna la lista dei progetti, rileggento i dati dei sensori e rimettendo i nomi nella lista
+    public void updateProjects() throws IOException {
+        readListOfSensors();
+        getStationsNames();
     }
-
-    public boolean conteins(Object o) {
+    //controlla se l'elemento passato in input fa parte della listas dei progetti
+    public boolean contains(Object o) {
         for(String station: projectStations){
             if(Objects.equals(station, String.valueOf(o))){
                 return true;

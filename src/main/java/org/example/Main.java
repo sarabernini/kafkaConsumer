@@ -11,14 +11,15 @@ public class Main {
         ArrayList<Message> listOfMessage = new ArrayList<>();
         DBConnector db= new DBConnector();
         Project p= new Project("UIA");
-        p.getStationsNames();
         Consumer c= new Consumer(listOfMessage, p, db);
+        p.getStationsNames();
         c.readData();
-        db.createTable();
         c.addMessagesToDatabase();
+    }
 
-
-        //db.dropTables();
-        //db.joinTables();
+    public void resetAll(DBConnector db, Project p) throws SQLException, IOException {
+        db.dropTables();
+        db.createTable();
+        db.updateProject(p);
     }
 }

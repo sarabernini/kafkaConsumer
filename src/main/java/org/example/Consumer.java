@@ -13,7 +13,6 @@ import org.apache.log4j.Logger;
 
 
 import java.io.*;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
@@ -33,11 +32,10 @@ public class Consumer {
         this.messageList = messageList;
         this.project= p;
         this.dbConnector= dbc;
-        dbc.addToDatabase(p);
     }
 
     //metodo che legge i dati dal sensore
-    public void readData() throws IOException {
+    public void readData(){
         Logger.getRootLogger().setLevel(Level.OFF);
         Properties props = new Properties();
         props.put("bootstrap.servers", "magentatest.servicebus.windows.net:9093");
@@ -49,46 +47,51 @@ public class Consumer {
         props.put("group.id", "$Default");
         // da asserire quando si comunica con il db
         props.put("enable.auto.commit", "true");
+        props.put("auto.offset.reset", "latest");
+        props.put("max.poll.records", 100);
+        props.put("fetch.min.bytes", 1);
+        props.put("fetch.max.wait.ms", 500);
+
 
         KafkaConsumer<String, byte[]> consumer = new KafkaConsumer<String, byte[]>(props);
-
         consumer.subscribe(Collections.singletonList("airqino"));
-        int c= 0;
 
-        try {
-            while (true) {
-                ConsumerRecords<String, byte[]> records = consumer.poll(0);
-                for (ConsumerRecord<String, byte[]> record : records) {
-                    this.deserialize(record);
-                    System.out.println(c++);
-                }
+        while (true) {
+            ConsumerRecords<String, byte[]> records = consumer.poll(1000);
+            for (ConsumerRecord<String, byte[]> record : records) {
+                this.deserialize(record, consumer);
             }
-        } catch (IOException e){
-            System.out.println("end");
-        }finally {
-            consumer.close();
         }
+
+
     }
-    //metodo che deserializza i dati ricevuti, li traduce in un oggetto messaggio che memorizza in una lista di messaggi
-    public void deserialize(ConsumerRecord<String, byte[]> record) throws IOException {
-        Decoder decoder = DecoderFactory.get().binaryDecoder(record.value(), null);
-        GenericRecord r= this.datumReader.read(null, decoder);
-        if(project.conteins(r.get(2))){
-           Message message= new Message(r);
-           messageList.add(message);
-       }
+    //metodo che deserializza i dati ricevuti, li traduce in un oggeto messaggio che memorizza in una lista di messaggi
+    public void deserialize(ConsumerRecord<String, byte[]> record, KafkaConsumer consumer) {
+        try {
+            Decoder decoder = DecoderFactory.get().binaryDecoder(record.value(), null);
+            GenericRecord r = null;
+            r = this.datumReader.read(null, decoder);
+            if (project.contains(r.get(2))) {
+                Message message = new Message(r);
+                messageList.add(message);
+            }
+            System.out.println(r.get(1));
+        } catch (Exception e) {
+            System.out.println("errore");
+        }
     }
 
     public void addMessagesToDatabase(){
-        int i=0;
+        //dbConnector.isAlreadyInTable(messageList);
         for(Message m: messageList){
-            dbConnector.insertValuesInMessage(m.getMessage_type(), m.getMessage_id(), m.getStation_name(),m.getTimestamp(), m.getAcquisition_timestamp(),m.getGps_timestamp(),m.getLatitude(),m.getLongitude(), i++);
-            for(Value v:m.getValues()){
-                dbConnector.insertValuesInValues(m.getMessage_id(),v.getSensor_name(),v.getValue());
+            if(dbConnector.insertValuesInMessage(m.getMessage_type(), m.getMessage_id(), m.getStation_name(),m.getTimestamp(), m.getAcquisition_timestamp(),m.getGps_timestamp(),m.getLatitude(),m.getLongitude())) {
+                for (Value v : m.getValues()) {
+                    dbConnector.insertValuesInValues(m.getMessage_id(), v.getSensor_name(), v.getValue());
+                }
+                for (ModelValues mv : m.getModel()) {
+                    dbConnector.insertValuesInModelValues(m.getMessage_id(), mv.getSensor_name(), mv.getPosition());
+                }
             }
-            for(ModelValues mv: m.getModel()){
-                 dbConnector.insertValuesInModelValues(m.getMessage_id(),mv.getSensor_name(),mv.getPosition());
-           }
         }
 
     }

@@ -1,9 +1,11 @@
 package org.example;
+import java.io.IOException;
 import java.sql.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+
 
 
 //classe che si connette al database e passa le informazioni
@@ -57,7 +59,7 @@ public class DBConnector {
     public void dropTables(){
         try (Statement stmt = conn.createStatement()) {
             //TODO: AGGIUNGI "SEI SICURTO?"CONTROLLO INPUT CONSOLE
-            String sql = //"DROP TABLE messages; " +
+            String sql = "DROP TABLE project; " +
                     "DROP TABLE message;"
                    + "DROP TABLE values;"
                   +"DROP TABLE model ";
@@ -68,24 +70,7 @@ public class DBConnector {
             e.printStackTrace();
         }
     }
-
-
-    public void printTables(){
-        String sql = "SELECT * FROM message_type";
-        try (Statement stmt = conn.createStatement();
-             ResultSet rs= stmt.executeQuery(sql)
-        ) {
-            while(rs.next()) {
-                //Display values
-                System.out.print("ID: " + rs.getString("type"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-    public void insertValuesInValues(int message_id, String sensorName, double value) {
-
-
+    public boolean insertValuesInValues(int message_id, String sensorName, double value) {
         try (
                 PreparedStatement pstmt =
                         conn.prepareStatement("INSERT INTO values(message_id, sensorName, value) VALUES(?, ?, ?);");
@@ -95,14 +80,14 @@ public class DBConnector {
             pstmt.setString(2,sensorName);
             pstmt.setDouble(3,value);
             pstmt.executeUpdate();
-            System.out.println(message_id);
-
+            return true;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("error in insertValuesInValues"+ message_id);
+            return false;
         }
 
     }
-    public void insertValuesInMessage(Message.MessageType messageType, int messageId, String stationName, Timestamp timestamp, Timestamp acquisitionTimestamp, Timestamp gpsTimestamp, float latitude, float longitude, int i) {
+    public boolean insertValuesInMessage(Message.MessageType messageType, int messageId, String stationName, Timestamp timestamp, Timestamp acquisitionTimestamp, Timestamp gpsTimestamp, float latitude, float longitude) {
         String sql ="INSERT INTO message(message_type, message_id,stationName,time_stamp, acquisition_timestamp, gps_timestamp, latitude, longitude) VALUES(?, ?, ?,?,?,?,?,?);";
         try (PreparedStatement pstmt = conn.prepareStatement(sql);)
         {
@@ -115,27 +100,40 @@ public class DBConnector {
             pstmt.setFloat(7,latitude);
             pstmt.setFloat(8,longitude);
             pstmt.executeUpdate();
-            System.out.print(stationName+ ""+ i);
-
+            return true;
         } catch (SQLException e) {
+            //System.out.println("error in insertValuesInMessage");
             e.printStackTrace();
+            return false;
         }
     }
-    public void insertValuesInModelValues(int messageId, String sensorName, int position) {
+    public boolean insertValuesInModelValues(int messageId, String sensorName, int position) {
         String sql = "INSERT INTO model(message_id, sensor_name, position) VALUES(?, ?, ?);";
         try (PreparedStatement pstmt = conn.prepareStatement(sql);) {
             pstmt.setInt(1, messageId);
             pstmt.setString(2, sensorName);
             pstmt.setInt(3, position);
             pstmt.executeUpdate();
-            System.out.print(messageId);
-
+            return true;
+        } catch (SQLException e) {
+            System.out.println("error in insertValuesInModelValues");
+            e.getStackTrace();
+            return false;
+        }
+    }
+    //cancello tutti gli elementi dalla tabella project
+    public void updateProject(Project p) throws IOException {
+        p.updateProjects();
+        String query = "DELETE FROM project;";
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        insertProjectsInProject(p);
     }
-
-    public void addToDatabase(Project p) {
+    //inserisco gli elementi nella cartella project
+    public void insertProjectsInProject(Project p) throws IOException {
         for(String name: p.getProjectStations()) {
             String sql = "INSERT INTO project (project_name, station_name) VALUES (?, ?);";
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -147,6 +145,7 @@ public class DBConnector {
             }
         }
     }
+
 }
 
 
