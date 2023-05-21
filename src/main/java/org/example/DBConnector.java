@@ -70,7 +70,7 @@ public class DBConnector {
             e.printStackTrace();
         }
     }
-    public boolean insertValuesInValues(int message_id, String sensorName, double value) {
+    public void insertValuesInValues(int message_id, String sensorName, double value) {
         try (
                 PreparedStatement pstmt =
                         conn.prepareStatement("INSERT INTO values(message_id, sensorName, value) VALUES(?, ?, ?);");
@@ -80,10 +80,8 @@ public class DBConnector {
             pstmt.setString(2,sensorName);
             pstmt.setDouble(3,value);
             pstmt.executeUpdate();
-            return true;
         } catch (SQLException e) {
             System.out.println("error in insertValuesInValues"+ message_id);
-            return false;
         }
 
     }
@@ -102,8 +100,8 @@ public class DBConnector {
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) {
-            //System.out.println("error in insertValuesInMessage");
-            e.printStackTrace();
+            System.out.println("error in insertValuesInMessage");
+            //e.printStackTrace();
             return false;
         }
     }

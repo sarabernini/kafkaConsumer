@@ -14,7 +14,6 @@ public class Main {
         Consumer c= new Consumer(listOfMessage, p, db);
         p.getStationsNames();
         c.readData();
-        c.addMessagesToDatabase();
     }
 
     public void resetAll(DBConnector db, Project p) throws SQLException, IOException {

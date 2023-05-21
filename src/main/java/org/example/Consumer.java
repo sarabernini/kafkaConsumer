@@ -35,7 +35,7 @@ public class Consumer {
     }
 
     //metodo che legge i dati dal sensore
-    public void readData(){
+    public void readData() {
         Logger.getRootLogger().setLevel(Level.OFF);
         Properties props = new Properties();
         props.put("bootstrap.servers", "magentatest.servicebus.windows.net:9093");
@@ -48,26 +48,24 @@ public class Consumer {
         // da asserire quando si comunica con il db
         props.put("enable.auto.commit", "true");
         props.put("auto.offset.reset", "latest");
-        props.put("max.poll.records", 100);
-        props.put("fetch.min.bytes", 1);
-        props.put("fetch.max.wait.ms", 500);
+        props.put("max.poll.records", "200");
+        props.put("fetch.min.bytes", "1");
+        props.put("fetch.max.wait.ms", "500");
 
 
         KafkaConsumer<String, byte[]> consumer = new KafkaConsumer<String, byte[]>(props);
         consumer.subscribe(Collections.singletonList("airqino"));
-
-        while (true) {
-            ConsumerRecords<String, byte[]> records = consumer.poll(1000);
-            for (ConsumerRecord<String, byte[]> record : records) {
-                this.deserialize(record, consumer);
+            while (true) {
+                ConsumerRecords<String, byte[]> records = consumer.poll(1000);
+                for (ConsumerRecord<String, byte[]> record : records) {
+                    this.deserialize(record, consumer);
+                }
+                addMessagesToDatabase();
             }
-        }
-
-
     }
     //metodo che deserializza i dati ricevuti, li traduce in un oggeto messaggio che memorizza in una lista di messaggi
-    public void deserialize(ConsumerRecord<String, byte[]> record, KafkaConsumer consumer) {
-        try {
+   public void deserialize(ConsumerRecord<String, byte[]> record, KafkaConsumer consumer) {
+        try{
             Decoder decoder = DecoderFactory.get().binaryDecoder(record.value(), null);
             GenericRecord r = null;
             r = this.datumReader.read(null, decoder);
@@ -82,9 +80,9 @@ public class Consumer {
     }
 
     public void addMessagesToDatabase(){
-        //dbConnector.isAlreadyInTable(messageList);
         for(Message m: messageList){
             if(dbConnector.insertValuesInMessage(m.getMessage_type(), m.getMessage_id(), m.getStation_name(),m.getTimestamp(), m.getAcquisition_timestamp(),m.getGps_timestamp(),m.getLatitude(),m.getLongitude())) {
+                System.out.println(m.getAcquisition_timestamp());
                 for (Value v : m.getValues()) {
                     dbConnector.insertValuesInValues(m.getMessage_id(), v.getSensor_name(), v.getValue());
                 }
