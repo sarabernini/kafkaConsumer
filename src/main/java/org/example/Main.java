@@ -14,9 +14,10 @@ public class Main {
         Consumer c= new Consumer(listOfMessage, p, db);
         p.getStationsNames();
         c.readData();
+
     }
 
-    public void resetAll(DBConnector db, Project p) throws SQLException, IOException {
+    public static void resetAll(DBConnector db, Project p) throws SQLException, IOException {
         db.dropTables();
         db.createTable();
         db.updateProject(p);

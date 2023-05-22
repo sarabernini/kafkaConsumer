@@ -48,7 +48,7 @@ public class Consumer {
         // da asserire quando si comunica con il db
         props.put("enable.auto.commit", "true");
         props.put("auto.offset.reset", "latest");
-        props.put("max.poll.records", "200");
+        props.put("max.poll.records", "500");
         props.put("fetch.min.bytes", "1");
         props.put("fetch.max.wait.ms", "500");
 
@@ -73,7 +73,6 @@ public class Consumer {
                 Message message = new Message(r);
                 messageList.add(message);
             }
-            System.out.println(r.get(1));
         } catch (Exception e) {
             System.out.println("errore");
         }
@@ -81,13 +80,13 @@ public class Consumer {
 
     public void addMessagesToDatabase(){
         for(Message m: messageList){
-            if(dbConnector.insertValuesInMessage(m.getMessage_type(), m.getMessage_id(), m.getStation_name(),m.getTimestamp(), m.getAcquisition_timestamp(),m.getGps_timestamp(),m.getLatitude(),m.getLongitude())) {
-                System.out.println(m.getAcquisition_timestamp());
+            //System.out.println(m.getStation_name()+": "+m.getTimestamp());
+            if(dbConnector.insertValuesInMessage(m.getMessage_type(), m.getStation_name(),m.getTimestamp(), m.getAcquisition_timestamp(),m.getGps_timestamp(),m.getLatitude(),m.getLongitude())) {
                 for (Value v : m.getValues()) {
-                    dbConnector.insertValuesInValues(m.getMessage_id(), v.getSensor_name(), v.getValue());
+                    dbConnector.insertValuesInValues(m.getStation_name(), m.getTimestamp(), v.getSensor_name(), v.getValue());
                 }
                 for (ModelValues mv : m.getModel()) {
-                    dbConnector.insertValuesInModelValues(m.getMessage_id(), mv.getSensor_name(), mv.getPosition());
+                    dbConnector.insertValuesInModelValues(m.getStation_name(),m.getTimestamp(), mv.getSensor_name(), mv.getPosition());
                 }
             }
         }

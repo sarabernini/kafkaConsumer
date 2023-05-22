@@ -26,16 +26,17 @@ public class DBConnector {
 
     public void createTable() throws SQLException {
         try (Statement stmt = conn.createStatement()) {
-            String sql = "CREATE TABLE values (message_id int , sensorName varchar(255)  , value double precision , primary key (message_id, sensorName));" +
-                    "CREATE TABLE model (message_id int , sensor_name varchar(255)  , position int , primary key (message_id, sensor_name));"+
+            String sql = "CREATE TABLE values (station_name varchar, time_stamp timestamp , sensorName varchar(255)  , value double precision , primary key (station_name, time_stamp, sensorName));" +
+                    "CREATE TABLE model (station_name varchar, time_stamp timestamp , sensor_name varchar(255)  , position int , primary key (station_name, time_stamp, sensor_name));"+
                     "CREATE TABLE message ( message_type varchar(255) ," +
-                    "message_id int primary key, " +
-                    "stationName varchar(255)," +
-                    "time_stamp TIMESTAMP," +
-                    "acquisition_timestamp TIMESTAMP," +
-                    "gps_timestamp TIMESTAMP," +
-                    "latitude FLOAT(15), " +
-                    "longitude FLOAT(15));" +
+                    "message_id int not null auto_increment, " +
+                    "stationName varchar," +
+                    "time_stamp timestamp," +
+                    "acquisition_timestamp timestamp," +
+                    "gps_timestamp timestamp," +
+                    "latitude float(20), " +
+                    "longitude float(20), " +
+                    "primary key (stationName, time_stamp));" +
                     "CREATE TABLE project ( project_name varchar(255)," +
                     "station_name varchar(255), primary key (project_name, station_name));";
 
@@ -70,47 +71,47 @@ public class DBConnector {
             e.printStackTrace();
         }
     }
-    public void insertValuesInValues(int message_id, String sensorName, double value) {
+    public void insertValuesInValues(String station_name, Timestamp time_stamp, String sensorName, double value) {
         try (
                 PreparedStatement pstmt =
-                        conn.prepareStatement("INSERT INTO values(message_id, sensorName, value) VALUES(?, ?, ?);");
+                        conn.prepareStatement("INSERT INTO values(station_name, time_stamp, sensorName, value) VALUES(?,?, ?, ?);");
         )
         {
-            pstmt.setInt(1,message_id);
-            pstmt.setString(2,sensorName);
-            pstmt.setDouble(3,value);
+            pstmt.setString(1,station_name);
+            pstmt.setTimestamp(2,time_stamp);
+            pstmt.setString(3,sensorName);
+            pstmt.setDouble(4,value);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("error in insertValuesInValues"+ message_id);
+            System.out.println("error in insertValuesInValues");
         }
 
     }
-    public boolean insertValuesInMessage(Message.MessageType messageType, int messageId, String stationName, Timestamp timestamp, Timestamp acquisitionTimestamp, Timestamp gpsTimestamp, float latitude, float longitude) {
-        String sql ="INSERT INTO message(message_type, message_id,stationName,time_stamp, acquisition_timestamp, gps_timestamp, latitude, longitude) VALUES(?, ?, ?,?,?,?,?,?);";
+    public boolean insertValuesInMessage(Message.MessageType messageType, String stationName, Timestamp timestamp, Timestamp acquisitionTimestamp, Timestamp gpsTimestamp, float latitude, float longitude) {
+        String sql ="INSERT INTO message(message_type,stationName,time_stamp, acquisition_timestamp, gps_timestamp, latitude, longitude) VALUES(?, ?,?,?,?,?,?);";
         try (PreparedStatement pstmt = conn.prepareStatement(sql);)
         {
             pstmt.setString(1,messageType.toString());
-            pstmt.setInt(2,messageId);
-            pstmt.setString(3,stationName);
-            pstmt.setTimestamp(4,timestamp);
-            pstmt.setTimestamp(5,acquisitionTimestamp);
-            pstmt.setTimestamp(6,gpsTimestamp);
-            pstmt.setFloat(7,latitude);
-            pstmt.setFloat(8,longitude);
+            pstmt.setString(2,stationName);
+            pstmt.setTimestamp(3,timestamp);
+            pstmt.setTimestamp(4,acquisitionTimestamp);
+            pstmt.setTimestamp(5,gpsTimestamp);
+            pstmt.setFloat(6,latitude);
+            pstmt.setFloat(7,longitude);
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) {
             System.out.println("error in insertValuesInMessage");
-            //e.printStackTrace();
             return false;
         }
     }
-    public boolean insertValuesInModelValues(int messageId, String sensorName, int position) {
-        String sql = "INSERT INTO model(message_id, sensor_name, position) VALUES(?, ?, ?);";
+    public boolean insertValuesInModelValues(String station_name, Timestamp time_stamp, String sensorName, int position) {
+        String sql = "INSERT INTO model(station_name, time_stamp, sensor_name, position) VALUES(?, ?, ?, ?);";
         try (PreparedStatement pstmt = conn.prepareStatement(sql);) {
-            pstmt.setInt(1, messageId);
-            pstmt.setString(2, sensorName);
-            pstmt.setInt(3, position);
+            pstmt.setString(1, station_name);
+            pstmt.setTimestamp(2, time_stamp);
+            pstmt.setString(3, sensorName);
+            pstmt.setInt(4, position);
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) {
