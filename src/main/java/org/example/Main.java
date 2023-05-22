@@ -10,10 +10,17 @@ public class Main {
     public static void main(String[] args) throws IOException, SQLException {
         ArrayList<Message> listOfMessage = new ArrayList<>();
         DBConnector db= new DBConnector();
-        Project p= new Project("UIA");
-        Consumer c= new Consumer(listOfMessage, p, db);
-        p.getStationsNames();
+        Project p1= new Project("UIA");
+        Project p2= new Project("Carilucca");
+        ArrayList<Project> projectList= new ArrayList<>();
+        projectList.add(p1);
+        projectList.add(p2);
+        Consumer c= new Consumer(listOfMessage, projectList, db);
+        for(Project p: projectList){
+            db.updateProject(p);
+        }
         c.readData();
+        //db.createAvg();
 
     }
 

@@ -23,7 +23,6 @@ public class DBConnector {
         this.conn = DriverManager.getConnection(url, user, pass);
 
     }
-
     public void createTable() throws SQLException {
         try (Statement stmt = conn.createStatement()) {
             String sql = "CREATE TABLE values (station_name varchar, time_stamp timestamp , sensorName varchar(255)  , value double precision , primary key (station_name, time_stamp, sensorName));" +
@@ -45,17 +44,6 @@ public class DBConnector {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-    public void joinTables(){
-        try (Statement stmt = conn.createStatement()) {
-            String sql ="CREATE TABLE messages AS (SELECT * FROM (values inner join message on (station = stationName)) " +
-                    "INNER JOIN model as mod on(stationName = station_name )); ";
-            stmt.executeUpdate(sql);
-            System.out.println("join tables...");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
     }
     public void dropTables(){
         try (Statement stmt = conn.createStatement()) {
@@ -142,6 +130,17 @@ public class DBConnector {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        }
+    }
+    public void createAvg(){
+        String query= "SELECT station_name, sensorname, DATE(time_stamp) as date, EXTRACT (HOUR FROM time_stamp) as hour, AVG(value)" +
+                "       INTO average_values" +
+                "       FROM values" +
+                "       GROUP BY(station_name, sensorname, date, hour)";
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 

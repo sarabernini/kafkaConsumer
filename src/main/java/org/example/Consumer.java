@@ -22,15 +22,15 @@ public class Consumer {
     private Schema schema ;
     private DatumReader<GenericRecord> datumReader;
     private ArrayList<Message> messageList;
-    private Project project;
+    private ArrayList<Project> projectList;
     private DBConnector dbConnector;
 
     //costruttore
-    public Consumer(ArrayList<Message> messageList, Project p, DBConnector dbc) throws IOException {
+    public Consumer(ArrayList<Message> messageList, ArrayList<Project> p, DBConnector dbc) throws IOException {
         this.schema = new Schema.Parser().parse(new File("src/main/java/org/example/avroschema.avsc"));
         this.datumReader = new GenericDatumReader<>(schema);
         this.messageList = messageList;
-        this.project= p;
+        this.projectList= p;
         this.dbConnector= dbc;
     }
 
@@ -69,10 +69,13 @@ public class Consumer {
             Decoder decoder = DecoderFactory.get().binaryDecoder(record.value(), null);
             GenericRecord r = null;
             r = this.datumReader.read(null, decoder);
-            if (project.contains(r.get(2))) {
-                Message message = new Message(r);
-                messageList.add(message);
+            for(Project project: projectList){
+                if (project.contains(r.get(2))) {
+                    Message message = new Message(r);
+                    messageList.add(message);
+                }
             }
+
         } catch (Exception e) {
             System.out.println("errore");
         }
