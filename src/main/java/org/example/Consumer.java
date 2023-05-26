@@ -48,19 +48,21 @@ public class Consumer {
         // da asserire quando si comunica con il db
         props.put("enable.auto.commit", "true");
         props.put("auto.offset.reset", "latest");
-        props.put("max.poll.records", "500");
+        props.put("max.poll.records", "200");
         props.put("fetch.min.bytes", "1");
-        props.put("fetch.max.wait.ms", "500");
+        props.put("fetch.max.wait.ms", "200");
+        props.put("max.poll.interval.ms", "300000");
 
 
         KafkaConsumer<String, byte[]> consumer = new KafkaConsumer<String, byte[]>(props);
         consumer.subscribe(Collections.singletonList("airqino"));
             while (true) {
-                ConsumerRecords<String, byte[]> records = consumer.poll(1000);
+                ConsumerRecords<String, byte[]> records = consumer.poll(0);
                 for (ConsumerRecord<String, byte[]> record : records) {
                     this.deserialize(record, consumer);
                 }
                 addMessagesToDatabase();
+                messageList.clear();
             }
     }
     //metodo che deserializza i dati ricevuti, li traduce in un oggeto messaggio che memorizza in una lista di messaggi
@@ -83,7 +85,6 @@ public class Consumer {
 
     public void addMessagesToDatabase(){
         for(Message m: messageList){
-            //System.out.println(m.getStation_name()+": "+m.getTimestamp());
             if(dbConnector.insertValuesInMessage(m.getMessage_type(), m.getStation_name(),m.getTimestamp(), m.getAcquisition_timestamp(),m.getGps_timestamp(),m.getLatitude(),m.getLongitude())) {
                 for (Value v : m.getValues()) {
                     dbConnector.insertValuesInValues(m.getStation_name(), m.getTimestamp(), v.getSensor_name(), v.getValue());
@@ -91,6 +92,8 @@ public class Consumer {
                 for (ModelValues mv : m.getModel()) {
                     dbConnector.insertValuesInModelValues(m.getStation_name(),m.getTimestamp(), mv.getSensor_name(), mv.getPosition());
                 }
+            }else{
+                System.out.println(m.getStation_name()+": "+m.getTimestamp());
             }
         }
 

@@ -13,9 +13,9 @@ public class Message {
     private MessageType message_type;
     private int message_id;
     private String station_name;
-    private java.sql.Timestamp timestamp;
-    private java.sql.Timestamp acquisition_timestamp;
-    private java.sql.Timestamp gps_timestamp;
+    private Timestamp timestamp;
+    private Timestamp acquisition_timestamp;
+    private Timestamp gps_timestamp;
     private float latitude;
     private float longitude;
     private ArrayList<Value> values;
@@ -85,7 +85,7 @@ public class Message {
         }
     }
 
-    private String convertTime(Object timestamp) {
+    public static String convertTime(Object timestamp) {
         String[] data= timestamp.toString().split("");
         String dataConverted= (data[6]+""+data[7]+""+data[8]+""+data[9]+"-"+data[3]+""+data[4]+"-"+data[0]+""+data[1]+" "+data[11]+""+data[12]+":"+data[14]+""+data[15]+":"+data[17]+""+data[18]);
 

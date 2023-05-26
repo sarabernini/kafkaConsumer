@@ -28,7 +28,7 @@ public class DBConnector {
             String sql = "CREATE TABLE values (station_name varchar, time_stamp timestamp , sensorName varchar(255)  , value double precision , primary key (station_name, time_stamp, sensorName));" +
                     "CREATE TABLE model (station_name varchar, time_stamp timestamp , sensor_name varchar(255)  , position int , primary key (station_name, time_stamp, sensor_name));"+
                     "CREATE TABLE message ( message_type varchar(255) ," +
-                    "message_id int not null auto_increment, " +
+                    "message_id serial not null, " +
                     "stationName varchar," +
                     "time_stamp timestamp," +
                     "acquisition_timestamp timestamp," +
@@ -141,6 +141,37 @@ public class DBConnector {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+    public void creatWeather(){
+        try (Statement stmt = conn.createStatement()) {
+            String sql = "CREATE TABLE weather (location varchar, date timestamp, mediumT int, minT int, maxT int, dewPoint int, humidity int, mediumWind int, maxWind int, pressure int, phenomena varchar, primary key (location ,date) );";
+
+            stmt.executeUpdate(sql);
+            System.out.println("Created table in given database...");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public void insertWeather(PeriodWeather pw){
+        for(DailyWeather daily: pw.getPeriodWeather()){
+            String sql = "INSERT INTO weather (location, date, mediumT, minT, maxT, dewPoint, humidity, mediumWind, maxWind, pressure, phenomena ) VALUES (?, ?, ?, ?, ?,?, ?, ?, ?, ?,?);";
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, daily.getLocation());
+                pstmt.setTimestamp(2, daily.getDate());
+                pstmt.setInt(3, daily.getAvgTemperature());
+                pstmt.setInt(4, daily.getMinTemperature());
+                pstmt.setInt(5, daily.getMaxTemperature());
+                pstmt.setInt(6, daily.getDewPoint());
+                pstmt.setInt(7, daily.getHumidity());
+                pstmt.setInt(8, daily.getAvgWind());
+                pstmt.setInt(9, daily.getMaxWind());
+                pstmt.setInt(10, daily.getPressure());
+                pstmt.setString(11, daily.getWeatherPhenomena());
+                pstmt.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
