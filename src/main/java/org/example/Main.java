@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) throws IOException, SQLException {
-        /*ArrayList<Message> listOfMessage = new ArrayList<>();
+        ArrayList<Message> listOfMessage = new ArrayList<>();
         DBConnector db= new DBConnector();
         Project p1= new Project("UIA");
         Project p2= new Project("Carilucca");
@@ -29,10 +29,12 @@ public class Main {
     public static void resetAll(DBConnector db, Project p) throws SQLException, IOException {
         db.dropTables();
         db.createTable();
-        db.updateProject(p);*/
+        db.updateProject(p);
+
+    }
+    public static void updateWeather(DBConnector db) throws IOException {
         PeriodWeather periodWeather= new PeriodWeather(null, null);
         periodWeather.readExcelFile();
-        DBConnector db= new DBConnector();
         db.creatWeather();
         db.insertWeather(periodWeather);
     }
