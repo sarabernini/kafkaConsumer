@@ -41,14 +41,14 @@ public class Message {
         setMessage_type(r.get(0));
         setMessage_id(r.get(1));
         setStation_name(r.get(2));
-        setTimestamp(r.get(3));
-        setAcquisition_timestamp(r.get(4));
-        setGps_timestamp(r.get(5));
-        setLatitude(r.get(6));
-        setLongitude(r.get(7));
-        setValues(r.get(8));
-        setModel(r.get(9));
-        setCommand(r.get(10));
+        setTimestamp(r.get(4));
+        setAcquisition_timestamp(r.get(5));
+        setGps_timestamp(r.get(6));
+        setLatitude(r.get(7));
+        setLongitude(r.get(8));
+        setValues(r.get(9));
+        setModel(r.get(10));
+        setCommand(r.get(11));
     }
 
     //setter (controllo che gli attibuti rispettino certe condizioni e non siano nulli)

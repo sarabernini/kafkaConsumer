@@ -71,6 +71,7 @@ public class Consumer {
             Decoder decoder = DecoderFactory.get().binaryDecoder(record.value(), null);
             GenericRecord r = null;
             r = this.datumReader.read(null, decoder);
+            //System.out.println(r);
             for(Project project: projectList){
                 if (project.contains(r.get(2))) {
                     Message message = new Message(r);
