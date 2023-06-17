@@ -79,7 +79,7 @@ public class Consumer {
             }
 
         } catch (Exception e) {
-            System.out.println("errore");
+            e.printStackTrace();
         }
     }
 
@@ -87,7 +87,9 @@ public class Consumer {
         for(Message m: messageList){
             if(dbConnector.insertValuesInMessage(m.getMessage_type(), m.getStation_name(),m.getTimestamp(), m.getAcquisition_timestamp(),m.getGps_timestamp(),m.getLatitude(),m.getLongitude())) {
                 for (Value v : m.getValues()) {
-                    dbConnector.insertValuesInValues(m.getStation_name(), m.getTimestamp(), v.getSensor_name(), v.getValue());
+                    if(v.getValue()>-10 && !v.getSensor_name().equals("AUX1") && !v.getSensor_name().equals("AUX2") && !v.getSensor_name().equals("AUX3")){
+                        dbConnector.insertValuesInValues(m.getStation_name(), m.getTimestamp(), v.getSensor_name(), v.getValue());
+                    }
                 }
                 for (ModelValues mv : m.getModel()) {
                     dbConnector.insertValuesInModelValues(m.getStation_name(),m.getTimestamp(), mv.getSensor_name(), mv.getPosition());

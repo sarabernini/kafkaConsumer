@@ -33,11 +33,10 @@ public class DBConnector {
                     "time_stamp timestamp," +
                     "acquisition_timestamp timestamp," +
                     "gps_timestamp timestamp," +
-                    "latitude float(20), " +
-                    "longitude float(20), " +
                     "primary key (stationName, time_stamp));" +
                     "CREATE TABLE project ( project_name varchar(255)," +
-                    "station_name varchar(255), primary key (project_name, station_name));";
+                    "station_name varchar(255), primary key (project_name, station_name));" +
+                    "CREATE TABLE station (station_name varchar primary key , latitude float(25), longitude float(25));";
 
             stmt.executeUpdate(sql);
             System.out.println("Created table in given database...");
@@ -51,7 +50,8 @@ public class DBConnector {
             String sql = "DROP TABLE project; " +
                     "DROP TABLE message;"
                    + "DROP TABLE values;"
-                  +"DROP TABLE model ";
+                  +"DROP TABLE model;" +
+                    "DROP TABLE station;";
             stmt.executeUpdate(sql);
             System.out.print("DROP table in given database...");
 
@@ -76,7 +76,7 @@ public class DBConnector {
 
     }
     public boolean insertValuesInMessage(Message.MessageType messageType, String stationName, Timestamp timestamp, Timestamp acquisitionTimestamp, Timestamp gpsTimestamp, float latitude, float longitude) {
-        String sql ="INSERT INTO message(message_type,stationName,time_stamp, acquisition_timestamp, gps_timestamp, latitude, longitude) VALUES(?, ?,?,?,?,?,?);";
+        String sql ="INSERT INTO message(message_type,stationName,time_stamp, acquisition_timestamp, gps_timestamp) VALUES(?, ?,?,?,?);";
         try (PreparedStatement pstmt = conn.prepareStatement(sql);)
         {
             pstmt.setString(1,messageType.toString());
@@ -84,8 +84,6 @@ public class DBConnector {
             pstmt.setTimestamp(3,timestamp);
             pstmt.setTimestamp(4,acquisitionTimestamp);
             pstmt.setTimestamp(5,gpsTimestamp);
-            pstmt.setFloat(6,latitude);
-            pstmt.setFloat(7,longitude);
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) {
@@ -93,7 +91,7 @@ public class DBConnector {
             return false;
         }
     }
-    public boolean insertValuesInModelValues(String station_name, Timestamp time_stamp, String sensorName, int position) {
+    public void insertValuesInModelValues(String station_name, Timestamp time_stamp, String sensorName, int position) {
         String sql = "INSERT INTO model(station_name, time_stamp, sensor_name, position) VALUES(?, ?, ?, ?);";
         try (PreparedStatement pstmt = conn.prepareStatement(sql);) {
             pstmt.setString(1, station_name);
@@ -101,31 +99,39 @@ public class DBConnector {
             pstmt.setString(3, sensorName);
             pstmt.setInt(4, position);
             pstmt.executeUpdate();
-            return true;
         } catch (SQLException e) {
-            System.out.println("error in insertValuesInModelValues");
-            e.getStackTrace();
-            return false;
+            e.printStackTrace();
         }
     }
     //cancello tutti gli elementi dalla tabella project
-    public void updateProject(Project p) throws IOException {
-        p.updateProjects();
+    public void updateProject() throws IOException {
         String query = "DELETE FROM project;";
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        insertProjectsInProject(p);
     }
     //inserisco gli elementi nella cartella project
     public void insertProjectsInProject(Project p) throws IOException {
-        for(String name: p.getProjectStations()) {
+        for(Station station: p.getProjectStations()) {
             String sql = "INSERT INTO project (project_name, station_name) VALUES (?, ?);";
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, p.getProjectName());
-                pstmt.setString(2, name);
+                pstmt.setString(2, station.getName());
+                pstmt.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    public void insertStations(Project p){
+        for(Station station: p.getProjectStations()) {
+            String sql = "INSERT INTO station (station_name, latitude, longitude) VALUES (?, ?, ?);";
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, station.getName());
+                pstmt.setFloat(2, station.getLatitude());
+                pstmt.setFloat(3, station.getLongitude());
                 pstmt.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();

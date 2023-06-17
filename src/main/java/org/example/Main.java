@@ -18,8 +18,9 @@ public class Main {
         projectList.add(p2);
         Consumer c= new Consumer(listOfMessage, projectList, db);
         //db.createTable();
+        db.updateProject();
         for(Project p: projectList){
-            db.updateProject(p);
+            p.updateProjects(db);
         }
         c.readData();
         //db.createAvg();
@@ -29,7 +30,7 @@ public class Main {
     public static void resetAll(DBConnector db, Project p) throws SQLException, IOException {
         db.dropTables();
         db.createTable();
-        db.updateProject(p);
+        db.updateProject();
 
     }
     public static void updateWeather(DBConnector db) throws IOException {

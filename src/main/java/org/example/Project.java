@@ -13,7 +13,7 @@ public class Project {
     //attributi
     private String projectName;
     private URL url;
-    private ArrayList<String> projectStations;
+    private ArrayList<Station> projectStations;
     private FileWriter file;
 
     //costruttore
@@ -24,7 +24,7 @@ public class Project {
     }
 
     //getter
-    public ArrayList<String> getProjectStations() {
+    public ArrayList<Station> getProjectStations() {
         return projectStations;
     }
     public String getProjectName() {
@@ -51,34 +51,58 @@ public class Project {
 
     //prende i nomi dei sensori e li inserisce in un lista
     public void getStationsNames() throws FileNotFoundException {
-        projectStations.clear();
         File readebleFile= new File("sensors"+projectName+".txt");
         Scanner myReader = new Scanner(readebleFile);
         int count= 0;
+        String name="";
+        String latitude="";
+        String longitude="";
         while (myReader.hasNextLine()) {
             String data= myReader.nextLine();
             count++;
             if(count%7 == 5){
                 String[] line= data.split(" ");
                 String[] word= line[9].split("");
-                String name="";
+                name="";
                 for(int i= 1; i<word.length-2; i++)
-                name += word[i];
-                projectStations.add(name);
+                    name += word[i];
+                //projectStations.add(name);
+            }
+            if(count%7 == 6){
+                String[] line= data.split(" ");
+                String[] word= line[9].split("");
+                latitude="";
+                for(int i= 0; i<word.length-1; i++)
+                    latitude += word[i];
+                //projectStations.add(name);
+            }
+            if(count%7 == 0){
+                String[] line= data.split(" ");
+                String[] word= line[9].split("");
+                longitude="";
+                for(int i= 0; i<word.length; i++)
+                    longitude += word[i];
+                //projectStations.add(name);
+            }
+            if(count%7 == 1){
+                if(!latitude.equals("") && !longitude.equals(""))
+                    projectStations.add(new Station(name,Float.parseFloat(latitude), Float.parseFloat(longitude)));
             }
         }
         myReader.close();
 
     }
     //aggiorna la lista dei progetti, rileggento i dati dei sensori e rimettendo i nomi nella lista
-    public void updateProjects() throws IOException {
+    public void updateProjects(DBConnector dbConnector) throws IOException {
+        projectStations.clear();
         readListOfSensors();
         getStationsNames();
+        dbConnector.insertProjectsInProject(this);
     }
     //controlla se l'elemento passato in input fa parte della listas dei progetti
     public boolean contains(Object o) {
-        for(String station: projectStations){
-            if(Objects.equals(station, String.valueOf(o))){
+        for(Station station: projectStations){
+            if(Objects.equals(station.getName(), String.valueOf(o))){
                 return true;
             }
         }
