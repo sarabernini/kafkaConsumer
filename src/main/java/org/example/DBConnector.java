@@ -5,10 +5,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 
-
-//classe che si connette al database e passa le informazioni
+//classe che si connette al database ed esegue le query
 
 public class DBConnector {
     private Connection conn;
@@ -23,6 +23,7 @@ public class DBConnector {
         this.conn = DriverManager.getConnection(url, user, pass);
 
     }
+    //metodo che esegue le query per la creazione delle tabelle nel database
     public void createTable() throws SQLException {
         try (Statement stmt = conn.createStatement()) {
             String sql = "CREATE TABLE values (station_name varchar, time_stamp timestamp , sensorName varchar(255)  , value double precision , primary key (station_name, time_stamp, sensorName));" +
@@ -44,22 +45,8 @@ public class DBConnector {
             e.printStackTrace();
         }
     }
-    public void dropTables(){
-        try (Statement stmt = conn.createStatement()) {
-            //TODO: AGGIUNGI "SEI SICURTO?"CONTROLLO INPUT CONSOLE
-            String sql = "DROP TABLE project; " +
-                    "DROP TABLE message;"
-                   + "DROP TABLE values;"
-                  +"DROP TABLE model;" +
-                    "DROP TABLE station;";
-            stmt.executeUpdate(sql);
-            System.out.print("DROP table in given database...");
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-    public void insertValuesInValues(String station_name, Timestamp time_stamp, String sensorName, double value) {
+    //metodo per l'inserimento dei valori passati in input nella tabella Values
+    public void insertValues(String station_name, Timestamp time_stamp, String sensorName, double value) {
         try (
                 PreparedStatement pstmt =
                         conn.prepareStatement("INSERT INTO values(station_name, time_stamp, sensorName, value) VALUES(?,?, ?, ?);");
@@ -73,9 +60,9 @@ public class DBConnector {
         } catch (SQLException e) {
             System.out.println("error in insertValuesInValues");
         }
-
     }
-    public boolean insertValuesInMessage(Message.MessageType messageType, String stationName, Timestamp timestamp, Timestamp acquisitionTimestamp, Timestamp gpsTimestamp, float latitude, float longitude) {
+    //metodo per l'inserimento dei valori passati in input nella tabella Message
+    public boolean insertMessage(Message.MessageType messageType, String stationName, Timestamp timestamp, Timestamp acquisitionTimestamp, Timestamp gpsTimestamp, float latitude, float longitude) {
         String sql ="INSERT INTO message(message_type,stationName,time_stamp, acquisition_timestamp, gps_timestamp) VALUES(?, ?,?,?,?);";
         try (PreparedStatement pstmt = conn.prepareStatement(sql);)
         {
@@ -91,7 +78,8 @@ public class DBConnector {
             return false;
         }
     }
-    public void insertValuesInModelValues(String station_name, Timestamp time_stamp, String sensorName, int position) {
+    //metodo per l'inserimento dei valori passati in input nella tabella Message
+    public void insertModelValues(String station_name, Timestamp time_stamp, String sensorName, int position) {
         String sql = "INSERT INTO model(station_name, time_stamp, sensor_name, position) VALUES(?, ?, ?, ?);";
         try (PreparedStatement pstmt = conn.prepareStatement(sql);) {
             pstmt.setString(1, station_name);
@@ -104,7 +92,7 @@ public class DBConnector {
         }
     }
     //cancello tutti gli elementi dalla tabella project
-    public void updateProject() throws IOException {
+    public void deleteProject() throws IOException {
         String query = "DELETE FROM project;";
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.executeUpdate();
@@ -112,8 +100,8 @@ public class DBConnector {
             e.printStackTrace();
         }
     }
-    //inserisco gli elementi nella cartella project
-    public void insertProjectsInProject(Project p) throws IOException {
+    //metodo che insierisce i valori presi in input nella tabella project
+    public void insertProject(Project p) throws IOException {
         for(Station station: p.getProjectStations()) {
             String sql = "INSERT INTO project (project_name, station_name) VALUES (?, ?);";
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -125,6 +113,7 @@ public class DBConnector {
             }
         }
     }
+    //metodo che inserisce i valori presi in input nella tabella Station
     public void insertStations(Project p){
         for(Station station: p.getProjectStations()) {
             String sql = "INSERT INTO station (station_name, latitude, longitude) VALUES (?, ?, ?);";
@@ -138,6 +127,7 @@ public class DBConnector {
             }
         }
     }
+    //metodo che crea la media oraria dei valori dei sensori
     public void createAvg(){
         String query= "SELECT station_name, sensorname, DATE(time_stamp) as date, EXTRACT (HOUR FROM time_stamp) as hour, AVG(value)" +
                 "       INTO average_values" +
@@ -149,37 +139,30 @@ public class DBConnector {
             e.printStackTrace();
         }
     }
-    public void creatWeather(){
+    //metodo che crea la tabella del meteo, del tipo dato in input
+    public void createWeather(String typeOfData){
         try (Statement stmt = conn.createStatement()) {
-            String sql = "CREATE TABLE weather (location varchar, date timestamp, mediumT int, minT int, maxT int, dewPoint int, humidity int, mediumWind int, maxWind int, pressure int, phenomena varchar, primary key (location ,date) );";
-
+            String sql = "CREATE TABLE " + typeOfData + " (date timestamp, value double precision);";
             stmt.executeUpdate(sql);
             System.out.println("Created table in given database...");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-    public void insertWeather(PeriodWeather pw){
-        for(DailyWeather daily: pw.getPeriodWeather()){
-            String sql = "INSERT INTO weather (location, date, mediumT, minT, maxT, dewPoint, humidity, mediumWind, maxWind, pressure, phenomena ) VALUES (?, ?, ?, ?, ?,?, ?, ?, ?, ?,?);";
+    //metodo che insirisce i valori presi in input nella tabella del meteo di un certo tipo dato in input
+    public void insertWeather(ArrayList<SingleWeather> weatherList, String typeOfData){
+        for(SingleWeather singleWeather: weatherList){
+            String sql = "INSERT INTO "+ typeOfData +" (date, value) VALUES (?, ?);";
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, daily.getLocation());
-                pstmt.setTimestamp(2, daily.getDate());
-                pstmt.setInt(3, daily.getAvgTemperature());
-                pstmt.setInt(4, daily.getMinTemperature());
-                pstmt.setInt(5, daily.getMaxTemperature());
-                pstmt.setInt(6, daily.getDewPoint());
-                pstmt.setInt(7, daily.getHumidity());
-                pstmt.setInt(8, daily.getAvgWind());
-                pstmt.setInt(9, daily.getMaxWind());
-                pstmt.setInt(10, daily.getPressure());
-                pstmt.setString(11, daily.getWeatherPhenomena());
+                pstmt.setTimestamp(1,singleWeather.getDate());
+                pstmt.setDouble(2, singleWeather.getValue());
                 pstmt.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
     }
+
 
 }
 

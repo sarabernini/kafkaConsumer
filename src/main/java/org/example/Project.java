@@ -66,7 +66,6 @@ public class Project {
                 name="";
                 for(int i= 1; i<word.length-2; i++)
                     name += word[i];
-                //projectStations.add(name);
             }
             if(count%7 == 6){
                 String[] line= data.split(" ");
@@ -74,7 +73,6 @@ public class Project {
                 latitude="";
                 for(int i= 0; i<word.length-1; i++)
                     latitude += word[i];
-                //projectStations.add(name);
             }
             if(count%7 == 0){
                 String[] line= data.split(" ");
@@ -82,7 +80,6 @@ public class Project {
                 longitude="";
                 for(int i= 0; i<word.length; i++)
                     longitude += word[i];
-                //projectStations.add(name);
             }
             if(count%7 == 1){
                 if(!latitude.equals("") && !longitude.equals(""))
@@ -97,9 +94,9 @@ public class Project {
         projectStations.clear();
         readListOfSensors();
         getStationsNames();
-        dbConnector.insertProjectsInProject(this);
+        dbConnector.insertProject(this);
     }
-    //controlla se l'elemento passato in input fa parte della listas dei progetti
+    //controlla se l'elemento passato in input fa parte della lista dei progetti
     public boolean contains(Object o) {
         for(Station station: projectStations){
             if(Objects.equals(station.getName(), String.valueOf(o))){

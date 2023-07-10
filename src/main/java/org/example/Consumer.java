@@ -65,7 +65,7 @@ public class Consumer {
                 messageList.clear();
             }
     }
-    //metodo che deserializza i dati ricevuti, li traduce in un oggeto messaggio che memorizza in una lista di messaggi
+    //metodo che deserializza i dati ricevuti, li traduce in un oggetto messaggio che memorizza in una lista di messaggi
    public void deserialize(ConsumerRecord<String, byte[]> record, KafkaConsumer consumer) {
         try{
             Decoder decoder = DecoderFactory.get().binaryDecoder(record.value(), null);
@@ -86,14 +86,14 @@ public class Consumer {
 
     public void addMessagesToDatabase(){
         for(Message m: messageList){
-            if(dbConnector.insertValuesInMessage(m.getMessage_type(), m.getStation_name(),m.getTimestamp(), m.getAcquisition_timestamp(),m.getGps_timestamp(),m.getLatitude(),m.getLongitude())) {
+            if(dbConnector.insertMessage(m.getMessage_type(), m.getStation_name(),m.getTimestamp(), m.getAcquisition_timestamp(),m.getGps_timestamp(),m.getLatitude(),m.getLongitude())) {
                 for (Value v : m.getValues()) {
                     if(v.getValue()>-10 && !v.getSensor_name().equals("AUX1") && !v.getSensor_name().equals("AUX2") && !v.getSensor_name().equals("AUX3")){
-                        dbConnector.insertValuesInValues(m.getStation_name(), m.getTimestamp(), v.getSensor_name(), v.getValue());
+                        dbConnector.insertValues(m.getStation_name(), m.getTimestamp(), v.getSensor_name(), v.getValue());
                     }
                 }
                 for (ModelValues mv : m.getModel()) {
-                    dbConnector.insertValuesInModelValues(m.getStation_name(),m.getTimestamp(), mv.getSensor_name(), mv.getPosition());
+                    dbConnector.insertModelValues(m.getStation_name(),m.getTimestamp(), mv.getSensor_name(), mv.getPosition());
                 }
             }else{
                 System.out.println(m.getStation_name()+": "+m.getTimestamp());
