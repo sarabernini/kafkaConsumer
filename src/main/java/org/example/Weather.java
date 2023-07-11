@@ -15,10 +15,12 @@ class SingleWeather {
     //attribute
     private Timestamp date;
     private double value;
+    private String location;
 
-    public SingleWeather(Timestamp date, double value){
+    public SingleWeather(Timestamp date, double value, String location){
         this.date= date;
         this.value= value;
+        this.location = location;
     }
 
     public Timestamp getDate(){
@@ -28,6 +30,9 @@ class SingleWeather {
         return value;
     }
 
+    public String getLocation() {
+        return location;
+    }
 }
 public class Weather{
     //attributi
@@ -36,12 +41,14 @@ public class Weather{
     private Timestamp startPeriod;
     private Timestamp endPeriod;
     private DBConnector dbConnector;
-    public Weather(DBConnector dbConnector, Timestamp startPeriod, Timestamp endPeriod, ArrayList<String> fileToRead){
+    private String location;
+    public Weather(DBConnector dbConnector, Timestamp startPeriod, Timestamp endPeriod, ArrayList<String> fileToRead, String location){
         this.startPeriod= startPeriod;
         this.endPeriod= endPeriod;
         this.weatherList= new ArrayList<>();
         this.dbConnector = dbConnector;
         this.fileToRead = fileToRead;
+        this.location= location;
     }
 
     public ArrayList<SingleWeather> getWeatherList(){
@@ -69,7 +76,7 @@ public class Weather{
                     }else{
                         value = Double.parseDouble(row.getCell(1).toString());
                     }
-                    SingleWeather singleWeather = new SingleWeather(date, value);
+                    SingleWeather singleWeather = new SingleWeather(date, value, location);
                     weatherList.add(singleWeather);
                 }
             }

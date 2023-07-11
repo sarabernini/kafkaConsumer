@@ -142,7 +142,7 @@ public class DBConnector {
     //metodo che crea la tabella del meteo, del tipo dato in input
     public void createWeather(String typeOfData){
         try (Statement stmt = conn.createStatement()) {
-            String sql = "CREATE TABLE " + typeOfData + " (date timestamp, value double precision);";
+            String sql = "CREATE TABLE " + typeOfData + " (date timestamp, value double precision, location varchar(255));";
             stmt.executeUpdate(sql);
             System.out.println("Created table in given database...");
         } catch (SQLException e) {
@@ -152,10 +152,11 @@ public class DBConnector {
     //metodo che insirisce i valori presi in input nella tabella del meteo di un certo tipo dato in input
     public void insertWeather(ArrayList<SingleWeather> weatherList, String typeOfData){
         for(SingleWeather singleWeather: weatherList){
-            String sql = "INSERT INTO "+ typeOfData +" (date, value) VALUES (?, ?);";
+            String sql = "INSERT INTO "+ typeOfData +" (date, value, location) VALUES (?, ?, ?);";
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setTimestamp(1,singleWeather.getDate());
                 pstmt.setDouble(2, singleWeather.getValue());
+                pstmt.setString(3, singleWeather.getLocation());
                 pstmt.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();

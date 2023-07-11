@@ -19,11 +19,10 @@ public class Message {
     private float latitude;
     private float longitude;
     private ArrayList<Value> values;
-    private ArrayList<ModelValues> model;
     private String command;
 
     //costruttori
-    public Message(MessageType message_type, int message_id, String station_name, java.sql.Timestamp timestamp, java.sql.Timestamp acquisition_timestamp, java.sql.Timestamp gps_timestamp, float latitude, float longitude, ArrayList<Value> values, ArrayList<ModelValues> model, String command) {
+    public Message(MessageType message_type, int message_id, String station_name, java.sql.Timestamp timestamp, java.sql.Timestamp acquisition_timestamp, java.sql.Timestamp gps_timestamp, float latitude, float longitude, ArrayList<Value> values, String command) {
         this.message_type = message_type;
         this.message_id = message_id;
         this.station_name = station_name;
@@ -33,22 +32,20 @@ public class Message {
         this.latitude = latitude;
         this.longitude = longitude;
         this.values = values;
-        this.model = model;
         this.command = command;
     }
 
     public Message(GenericRecord r) {
         setMessage_type(r.get(0));
-        setMessage_id(r.get(1));
-        setStation_name(r.get(2));
-        setTimestamp(r.get(4));
-        setAcquisition_timestamp(r.get(5));
-        setGps_timestamp(r.get(6));
-        setLatitude(r.get(7));
-        setLongitude(r.get(8));
-        setValues(r.get(9));
-        setModel(r.get(10));
-        setCommand(r.get(11));
+        setMessage_id(r.get(2));
+        setStation_name(r.get(3));
+        setTimestamp(r.get(5));
+        setAcquisition_timestamp(r.get(6));
+        setGps_timestamp(r.get(7));
+        setLatitude(r.get(8));
+        setLongitude(r.get(9));
+        setValues(r.get(11));
+        setCommand(r.get(12));
     }
 
     //setter (controllo che gli attibuti rispettino certe condizioni e non siano nulli)
@@ -138,22 +135,6 @@ public class Message {
         }
     }
 
-    public void setModel(Object mod) {
-        ArrayList<ModelValues> modelValues= new ArrayList<>();
-        if(mod != null){
-            GenericData.Array mv= (GenericData.Array)mod;
-            for(int i=0; i<mv.size(); i++ ) {
-                GenericRecord model = (GenericRecord) mv.get(i);
-                ModelValues modelValue = new ModelValues();
-                modelValue.setPosition(Integer.parseInt(model.get(0).toString()));
-                modelValue.setSensor_name(model.get(1).toString());
-                modelValues.add(modelValue);
-            }
-            this.model= modelValues;
-        }else this.model= null;
-
-    }
-
     public void setCommand(Object command) {
         if(command != null){
             this.command= command.toString();
@@ -196,10 +177,6 @@ public class Message {
         return values;
     }
 
-    public ArrayList<ModelValues> getModel() {
-        return model;
-    }
-
     public String getCommand() {
         return command;
     }
@@ -220,25 +197,6 @@ class Value {
         return value;
     }
 
-    public String getSensor_name() {
-        return sensor_name;
-    }
-}
-
-class ModelValues {
-    private int position;
-    private String sensor_name;
-
-    public void setPosition(int position) {
-        this.position = position;
-    }
-
-    public void setSensor_name(String sensor_name) {
-        this.sensor_name = sensor_name;
-    }
-    public int getPosition() {
-        return position;
-    }
     public String getSensor_name() {
         return sensor_name;
     }

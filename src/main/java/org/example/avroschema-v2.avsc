@@ -1,0 +1,92 @@
+{
+  "namespace": "it.magentalab.airqinogateway.avro",
+  "type": "record",
+  "name": "Datapacket_v2",
+  "fields": [{
+      "name": "message_type",
+      "type": {
+        "type": "enum",
+        "name": "MessageType",
+        "symbols": ["DATA", "STATUS", "CONTROL", "MODEL", "EXIT"]
+      }
+    },
+    {
+      "name": "json_version",
+      "type": "int",
+      "default": 2
+    },
+    {
+      "name": "message_id",
+      "type": "int",
+      "default": 0
+    },
+    {
+      "name": "station_name",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "name": "station_type_id", 
+      "type": ["null", "int"], 
+      "default": null
+    },
+    {
+      "name": "timestamp",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "name": "acquisition_timestamp",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "name": "gps_timestamp",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "name": "latitude",
+      "type": ["null", "float"]
+    },
+    {
+      "name": "longitude",
+      "type": ["null", "float"]
+    },
+    {
+      "name": "error_string",
+      "type": "string",
+      "default": ""
+    },    
+    {
+      "name": "values",
+      "type": {
+        "type": "array",
+        "items": {
+          "type": "record",
+          "name": "Value_v2",
+          "fields": [{
+            "name": "value",
+            "type": "double"
+          }, {
+            "name": "sensor_name",
+            "type": "string"
+          }, {
+            "name": "sensor_id",
+            "type": "int"
+          }, {
+            "name": "error_state",
+            "type": ["null","boolean"],
+            "default": null
+          }]
+        }
+      },
+      "default": []
+    },
+    {
+      "name": "command",
+      "type": "string",
+      "default": ""
+    }
+  ]
+}

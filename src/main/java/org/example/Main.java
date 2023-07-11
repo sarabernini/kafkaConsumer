@@ -23,18 +23,18 @@ public class Main {
         for(Project p: projectList){
             p.updateProjects(db);
         }
-        //c.readData();
+        c.readData();
         //db.createAvg();
-        updateWeather(db);
+        //updateWeather(db);
 
     }
 
     public static void updateWeather(DBConnector db) throws IOException {
         ArrayList<String> fileToRead = new ArrayList<>();
         fileToRead.add("rain_prato");
-        fileToRead.add("temperature_prato");
-        fileToRead.add("wind_prato");
-        Weather weather = new Weather(db, Timestamp.valueOf("2023-05-26 09:30:00"), Timestamp.valueOf("2023-07-07 23:59:00"), fileToRead);
+        //fileToRead.add("temperature_prato");
+        //fileToRead.add("wind_prato");
+        Weather weather = new Weather(db, Timestamp.valueOf("2023-05-26 09:30:00"), Timestamp.valueOf("2023-07-07 23:59:00"), fileToRead, "Prato");
         weather.createAllTableInDB();
     }
 }

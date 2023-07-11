@@ -27,7 +27,7 @@ public class Consumer {
 
     //costruttore
     public Consumer(ArrayList<Message> messageList, ArrayList<Project> p, DBConnector dbc) throws IOException {
-        this.schema = new Schema.Parser().parse(new File("src/main/java/org/example/avroschema.avsc"));
+        this.schema = new Schema.Parser().parse(new File("src/main/java/org/example/avroschema-v2.avsc"));
         this.datumReader = new GenericDatumReader<>(schema);
         this.messageList = messageList;
         this.projectList= p;
@@ -73,7 +73,7 @@ public class Consumer {
             r = this.datumReader.read(null, decoder);
             //System.out.println(r);
             for(Project project: projectList){
-                if (project.contains(r.get(2))) {
+                if (project.contains(r.get(3))) {
                     Message message = new Message(r);
                     messageList.add(message);
                 }
@@ -91,9 +91,6 @@ public class Consumer {
                     if(v.getValue()>-10 && !v.getSensor_name().equals("AUX1") && !v.getSensor_name().equals("AUX2") && !v.getSensor_name().equals("AUX3")){
                         dbConnector.insertValues(m.getStation_name(), m.getTimestamp(), v.getSensor_name(), v.getValue());
                     }
-                }
-                for (ModelValues mv : m.getModel()) {
-                    dbConnector.insertModelValues(m.getStation_name(),m.getTimestamp(), mv.getSensor_name(), mv.getPosition());
                 }
             }else{
                 System.out.println(m.getStation_name()+": "+m.getTimestamp());
