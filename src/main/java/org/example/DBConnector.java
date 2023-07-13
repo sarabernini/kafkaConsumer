@@ -21,8 +21,8 @@ public class DBConnector {
         user = "postgres";
         pass = "***REDACTED***";
         this.conn = DriverManager.getConnection(url, user, pass);
-
     }
+
     //metodo che esegue le query per la creazione delle tabelle nel database
     public void createTable() throws SQLException {
         try (Statement stmt = conn.createStatement()) {
@@ -142,7 +142,7 @@ public class DBConnector {
     //metodo che crea la tabella del meteo, del tipo dato in input
     public void createWeather(String typeOfData){
         try (Statement stmt = conn.createStatement()) {
-            String sql = "CREATE TABLE " + typeOfData + " (date timestamp, value double precision, location varchar(255));";
+            String sql = "CREATE TABLE " + typeOfData + " (date timestamp, value double precision, location varchar(255), primary key (date));";
             stmt.executeUpdate(sql);
             System.out.println("Created table in given database...");
         } catch (SQLException e) {
@@ -161,6 +161,20 @@ public class DBConnector {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public void calculateWeatherAverage(String location){
+        try (Statement stmt = conn.createStatement()) {
+            String sql= "select date(r.date) as day, extract( hour from r.date) as hour, avg(r.value) as rain, " +
+                    "avg(t.value) as temparature, avg(w.value) as wind, r.location into weather_"+ location +
+                    " from rain_"+ location +" as r left join temperature_"+ location +" as t on r.date = t.date  " +
+                    " left join wind_"+ location +" w on t.date =w.date" +
+                    " group by day, hour, r.location";
+            stmt.executeUpdate(sql);
+            System.out.println("Created table in given database...");
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 

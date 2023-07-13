@@ -71,7 +71,7 @@ public class Weather{
                 Timestamp date= Timestamp.valueOf(convertDate(row.getCell(0).getDateCellValue().toString()));
                 if(date.after(startPeriod) && date.before(endPeriod)){
                     Double value;
-                    if(file.equals("src/main/resources/wind_prato.xlsx")){
+                    if(file.equals("src/main/resources/wind_"+location+".xlsx")){
                         value= convertWind(row.getCell(1).toString());
                     }else{
                         value = Double.parseDouble(row.getCell(1).toString());
@@ -93,6 +93,10 @@ public class Weather{
             dbConnector.createWeather(fileName);
             dbConnector.insertWeather(weatherList, fileName);
         }
+    }
+
+    public void calculateAverage(){
+        dbConnector.calculateWeatherAverage(location);
     }
 
     public double convertWind(String wind){
