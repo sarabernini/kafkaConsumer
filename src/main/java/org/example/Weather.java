@@ -42,6 +42,8 @@ public class Weather{
     private Timestamp endPeriod;
     private DBConnector dbConnector;
     private String location;
+
+    //costruttore
     public Weather(DBConnector dbConnector, Timestamp startPeriod, Timestamp endPeriod, ArrayList<String> fileToRead, String location){
         this.startPeriod= startPeriod;
         this.endPeriod= endPeriod;
@@ -50,11 +52,12 @@ public class Weather{
         this.fileToRead = fileToRead;
         this.location= location;
     }
-
+    //getter
     public ArrayList<SingleWeather> getWeatherList(){
         return weatherList;
     }
 
+    //other methods
     //leggo dal file excel le informazioni meteo e per ogni riga inserisco le informazioni  come attributi della classe
     // SingleWeather che a sua volta viene insierita in nella lista weatherList
     public void readFileExcel(String file){
@@ -85,7 +88,7 @@ public class Weather{
             e.printStackTrace();
         }
     }
-
+    // metodo che permette inserimento nel DB delle tabelle meteo
     public void createAllTableInDB(){
         for(String fileName : fileToRead){
             weatherList.clear();
@@ -94,11 +97,12 @@ public class Weather{
             dbConnector.insertWeather(weatherList, fileName);
         }
     }
-
+    //metodo che calcola la media oraria dei dati meteo e li raggruppa in un unica tabella
     public void calculateAverage(){
+        //dbConnector.dropTables();
         dbConnector.calculateWeatherAverage(location);
     }
-
+    //metodo che converte i valori del vento <valori al m/s>/<valori in deg> a <valori al m/s>
     public double convertWind(String wind){
         String[] letters = wind.split("");
         int i = 0;
@@ -112,7 +116,7 @@ public class Weather{
         }
         return Double.parseDouble(newWind);
     }
-
+    //metodo che converte le date dal formato "mm" dd hh:mm:ss yyyy in yyyy-mm-dd hh:mm:ss
     public String convertDate(String date){
         String[] worldString = date.split(" ");
         switch (worldString[1]){

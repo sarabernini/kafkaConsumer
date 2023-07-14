@@ -10,17 +10,19 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Project {
-    //attributi
+    //attributes
     private String projectName;
     private URL url;
     private ArrayList<Station> projectStations;
     private FileWriter file;
+    private String location;
 
-    //costruttore
-    public Project(String projectName) throws MalformedURLException {
+    //constructor
+    public Project(String projectName, String location) throws MalformedURLException {
         this.projectName = projectName;
         this.url = new URL("https://airqino-api.magentalab.it/getStations/"+projectName);
-        projectStations= new ArrayList<>();
+        this.projectStations= new ArrayList<>();
+        this.location = location;
     }
 
     //getter
@@ -30,8 +32,11 @@ public class Project {
     public String getProjectName() {
         return projectName;
     }
-    //metodi
-    //legge i dati dei sensori relativi ad un progetto dato facendo una request http, li scrive in un file
+    public String getLocation() {
+        return location;
+    }
+
+    //metodo che legge i dati dei sensori relativi ad un progetto facendo una request http e li scrive in un file.txt
     public void readListOfSensors() throws IOException {
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
@@ -49,7 +54,7 @@ public class Project {
         }
     }
 
-    //prende i nomi dei sensori e li inserisce in un lista
+    //metodo che legge i nomi dei sensori, la loro latitudine e longitudine da file e li inserisce in un lista
     public void getStationsNames() throws FileNotFoundException {
         File readebleFile= new File("sensors"+projectName+".txt");
         Scanner myReader = new Scanner(readebleFile);
@@ -96,6 +101,7 @@ public class Project {
         getStationsNames();
         dbConnector.insertProject(this);
     }
+
     //controlla se l'elemento passato in input fa parte della lista dei progetti
     public boolean contains(Object o) {
         for(Station station: projectStations){
@@ -105,4 +111,6 @@ public class Project {
         }
         return false;
     }
+
+
 }

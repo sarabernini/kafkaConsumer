@@ -9,7 +9,7 @@ public class Message {
 
     enum MessageType {DATA, STATUS, CONTROL, MODEL, EXIT, NULL}
 
-    //attributi
+    //attributes
     private MessageType message_type;
     private int message_id;
     private String station_name;
@@ -21,7 +21,7 @@ public class Message {
     private ArrayList<Value> values;
     private String command;
 
-    //costruttori
+    //constructors
     public Message(MessageType message_type, int message_id, String station_name, java.sql.Timestamp timestamp, java.sql.Timestamp acquisition_timestamp, java.sql.Timestamp gps_timestamp, float latitude, float longitude, ArrayList<Value> values, String command) {
         this.message_type = message_type;
         this.message_id = message_id;
@@ -183,20 +183,22 @@ public class Message {
 }
 
 class Value {
+    //attributes
     private double value;
     private String sensor_name;
 
+    //setter
     public void setValue(double value) {
         this.value = value;
     }
-
     public void setSensor_name(String sensor_name) {
         this.sensor_name = sensor_name;
     }
+
+    //getter
     public double getValue() {
         return value;
     }
-
     public String getSensor_name() {
         return sensor_name;
     }

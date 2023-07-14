@@ -11,11 +11,14 @@ import java.util.ArrayList;
 //classe che si connette al database ed esegue le query
 
 public class DBConnector {
+
+    //attributes
     private Connection conn;
     private String url;
     private String user;
     private String pass;
 
+    //constructor
     public DBConnector() throws SQLException {
         url = "jdbc:postgresql://136.243.101.139:5433/postgres";
         user = "postgres";
@@ -36,7 +39,7 @@ public class DBConnector {
                     "gps_timestamp timestamp," +
                     "primary key (stationName, time_stamp));" +
                     "CREATE TABLE project ( project_name varchar(255)," +
-                    "station_name varchar(255), primary key (project_name, station_name));" +
+                    "station_name varchar(255),location varchar(255) primary key (project_name, station_name));" +
                     "CREATE TABLE station (station_name varchar primary key , latitude float(25), longitude float(25));";
 
             stmt.executeUpdate(sql);
@@ -91,7 +94,7 @@ public class DBConnector {
             e.printStackTrace();
         }
     }
-    //cancello tutti gli elementi dalla tabella project
+    //metodo che cancella tutti gli elementi dalla tabella project
     public void deleteProject() throws IOException {
         String query = "DELETE FROM project;";
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -103,10 +106,11 @@ public class DBConnector {
     //metodo che insierisce i valori presi in input nella tabella project
     public void insertProject(Project p) throws IOException {
         for(Station station: p.getProjectStations()) {
-            String sql = "INSERT INTO project (project_name, station_name) VALUES (?, ?);";
+            String sql = "INSERT INTO project (project_name, station_name, location) VALUES (?, ?,?);";
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, p.getProjectName());
                 pstmt.setString(2, station.getName());
+                pstmt.setString(3, p.getLocation());
                 pstmt.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -125,18 +129,6 @@ public class DBConnector {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        }
-    }
-    //metodo che crea la media oraria dei valori dei sensori
-    public void createAvg(){
-        String query= "SELECT station_name, sensorname, DATE(time_stamp) as date, EXTRACT (HOUR FROM time_stamp) as hour, AVG(value)" +
-                "       INTO average_values" +
-                "       FROM values" +
-                "       GROUP BY(station_name, sensorname, date, hour)";
-        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
     //metodo che crea la tabella del meteo, del tipo dato in input
@@ -163,7 +155,7 @@ public class DBConnector {
             }
         }
     }
-
+    //metodo che unisce le tabelle meteo di una certa località e ne calcola le medie orarie
     public void calculateWeatherAverage(String location){
         try (Statement stmt = conn.createStatement()) {
             String sql= "select date(r.date) as day, extract( hour from r.date) as hour, avg(r.value) as rain, " +
@@ -177,8 +169,33 @@ public class DBConnector {
             e.printStackTrace();
         }
     }
-
-
+    //metodo che crea una tabella contenete per ogni stazione le medie orarie dei valori dei suoi sensori
+    public void createStationsValues() {
+        try (Statement stmt = conn.createStatement()) {
+            String sql= "select v1.station_name , DATE(m.acquisition_timestamp) as date,  EXTRACT (HOUR FROM m.acquisition_timestamp) as hour, avg(v1.value) as \"co\", avg(v2.value) as \"co2\",avg(v3.value) as \"no2\", avg(v4.value) as \"o3\", avg(v5.value) as \"pm10\", avg(v6.value) as \"pm25\", avg(case when extract(isodow from m.acquisition_timestamp)= 1 then 1 else 0 end) as monday, avg(case when extract(isodow from m.acquisition_timestamp)= 2 then 1 else 0 end) as tuesday,avg(case when extract(isodow from m.acquisition_timestamp)= 3 then 1 else 0 end) as wednesday, avg(case when extract(isodow from m.acquisition_timestamp)= 4 then 1 else 0 end) as thursday, avg(case when extract(isodow from m.acquisition_timestamp)= 5 then 1 else 0 end) as friday, avg(case when extract(isodow from m.acquisition_timestamp)= 6 then 1 else 0 end) as saturday, avg(case when extract(isodow from m.acquisition_timestamp)= 7 then 1 else 0 end) as sunday\n" +
+                    "into station_values\n" +
+                    "from (((((\"values\" v1 left join \"values\" v2 on v1.\"time_stamp\" = v2.\"time_stamp\" and v1.station_name= v2.station_name) left join \"values\" v3 on v1.\"time_stamp\" = v3.\"time_stamp\" and v1.station_name= v3.station_name) left join \"values\" v4 on v1.\"time_stamp\" = v4.\"time_stamp\" and v1.station_name= v4.station_name) left join \"values\" v5 on v1.\"time_stamp\" = v5.\"time_stamp\" and v1.station_name= v5.station_name) left join \"values\" v6 on v1.\"time_stamp\" = v6.\"time_stamp\" and v1.station_name= v6.station_name)join message m on v1.\"time_stamp\" = m.\"time_stamp\" \n" +
+                    "where v1.sensorname  = 'co' and v2.sensorname  = 'co2' and v3.sensorname  = 'no2'  and v4.sensorname  = 'o3' and v5.sensorname  = 'pm10'  and v6.sensorname  = 'pm25'\n" +
+                    "group by v1.sensorname, v2.sensorname, v3.sensorname ,v4.sensorname ,v5.sensorname ,v6.sensorname , v1.station_name, date, hour ";
+            stmt.executeUpdate(sql);
+            System.out.println("Created table in given database...");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    //metodo che unisce la tabella con i valori medi e quella con le temperature medie, restituendo i valori nella tabella dataset
+    public void createDataset() {
+        try (Statement stmt = conn.createStatement()) {
+            String sql= "select sv.\"date\" ,sv.\"hour\" ,sv.co, sv.co2, sv.no2, sv.o3, sv.pm10, sv.pm25, sv.monday , sv.tuesday , sv.wednesday , sv.thursday , sv.friday , sv.saturday , sv.sunday , w.rain, w.temperature, w.wind, (case when p.location=\'prato\' then 1 else 0 end) as Prato, (case when p.location=\'lucca\' then 1 else 0 end) as Lucca\n" +
+                    "into dataset\n" +
+                    "from ((station_values sv left join project p on sv.station_name = p.station_name)left join (select * from weather_prato union select * from weather_lucca) as w on sv.date = w.day)\n" +
+                    "where p.\"location\" = w.\"location\"  and sv.\"hour\" = w.\"hour\"";
+            stmt.executeUpdate(sql);
+            System.out.println("Created table in given database...");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
 
 
