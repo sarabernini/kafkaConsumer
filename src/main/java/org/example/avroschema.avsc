@@ -3,13 +3,33 @@
   "type": "record",
   "name": "Datapacket",
   "fields": [{
-    "name": "message_type",
-    "type": {
-      "type": "enum",
-      "name": "MessageType",
-      "symbols": ["DATA", "STATUS", "CONTROL", "MODEL", "EXIT"]
-    }
-  },
+      "name": "message_type",
+      "type": {
+        "type": "enum",
+        "name": "MessageType",
+        "symbols": ["DATA", "STATUS", "CONTROL", "MODEL", "EXIT"]
+      }
+    },
+    {
+      "name": "json_version",
+      "type": "int",
+      "default": 2
+    },
+    {
+      "name": "RSSI",
+      "type": ["null", "int"], 
+      "default": null
+    },
+    {
+      "name": "valim",
+      "type": ["null", "int"], 
+      "default": null
+    },
+    {
+      "name": "vbat",
+      "type": ["null", "int"], 
+      "default": null
+    },
     {
       "name": "message_id",
       "type": "int",
@@ -21,8 +41,8 @@
       "default": ""
     },
     {
-      "name": "station_type_id",
-      "type": ["null", "int"],
+      "name": "station_type_id", 
+      "type": ["null", "int"], 
       "default": null
     },
     {
@@ -49,6 +69,11 @@
       "type": ["null", "float"]
     },
     {
+      "name": "error_string",
+      "type": "string",
+      "default": ""
+    },    
+    {
       "name": "values",
       "type": {
         "type": "array",
@@ -64,24 +89,10 @@
           }, {
             "name": "sensor_id",
             "type": "int"
-          }]
-        }
-      },
-      "default": []
-    },
-    {
-      "name": "model",
-      "type": {
-        "type": "array",
-        "items": {
-          "type": "record",
-          "name": "ModelValues",
-          "fields": [{
-            "name": "position",
-            "type": "int"
           }, {
-            "name": "sensor_name",
-            "type": "string"
+            "name": "error_state",
+            "type": ["null","boolean"],
+            "default": null
           }]
         }
       },

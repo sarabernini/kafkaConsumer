@@ -27,7 +27,7 @@ public class Consumer {
 
     //costruttore
     public Consumer(ArrayList<Message> messageList, ArrayList<Project> p, DBConnector dbc) throws IOException {
-        this.schema = new Schema.Parser().parse(new File("src/main/java/org/example/avroschema-v2.avsc"));
+        this.schema = new Schema.Parser().parse(new File("src/main/java/org/example/avroschema.avsc"));
         this.datumReader = new GenericDatumReader<>(schema);
         this.messageList = messageList;
         this.projectList= p;
@@ -71,9 +71,9 @@ public class Consumer {
             Decoder decoder = DecoderFactory.get().binaryDecoder(record.value(), null);
             GenericRecord r = null;
             r = this.datumReader.read(null, decoder);
-            //System.out.println(r);
+            //filtra messaggi per progetto
             for(Project project: projectList){
-                if (project.contains(r.get(3))) {
+                if (project.contains(r.get(6))) {
                     Message message = new Message(r);
                     messageList.add(message);
                 }

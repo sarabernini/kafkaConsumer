@@ -37,15 +37,15 @@ public class Message {
 
     public Message(GenericRecord r) {
         setMessage_type(r.get(0));
-        setMessage_id(r.get(2));
-        setStation_name(r.get(3));
-        setTimestamp(r.get(5));
-        setAcquisition_timestamp(r.get(6));
-        setGps_timestamp(r.get(7));
-        setLatitude(r.get(8));
-        setLongitude(r.get(9));
-        setValues(r.get(11));
-        setCommand(r.get(12));
+        setMessage_id(r.get(5));
+        setStation_name(r.get(6));
+        setTimestamp(r.get(8));
+        setAcquisition_timestamp(r.get(9));
+        setGps_timestamp(r.get(10));
+        setLatitude(r.get(11));
+        setLongitude(r.get(12));
+        setValues(r.get(14));
+        setCommand(r.get(15));
     }
 
     //setter (controllo che gli attibuti rispettino certe condizioni e non siano nulli)
