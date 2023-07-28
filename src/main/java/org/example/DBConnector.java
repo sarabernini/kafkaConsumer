@@ -1,4 +1,6 @@
 package org.example;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.*;
 import java.sql.Connection;
@@ -294,28 +296,41 @@ public class DBConnector {
             while (resultSet.next()){
                 System.out.println("project: "+resultSet.getString("project")+", task: "+ resultSet.getString("task")+", algorithm: "+ resultSet.getString("algorithm")+", deployed: " + resultSet.getBoolean("deployed"));
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public double predict(String project_name,String relation_name, String array) {
+    public ResultSet predict(String project_name,String relation_name, String array) {
         try (Statement stmt = conn.createStatement()) {
-            String sql= "select pgml.predict( " +
+            String sql= "select pgml.predict_batch( " +
                     "'"+project_name+"', " +
-                    "array"+array+") as prediction " +
-                    "from "+relation_name+" LIMIT 1";
-            ResultSet resultSet= stmt.executeQuery(sql);
-            while (resultSet.next()){
-                System.out.println("prediction: "+ resultSet.getDouble("prediction"));
-                return resultSet.getDouble("prediction");
-            }
+                    "array_agg(array"+array+")) as prediction " +
+                    "from "+relation_name+" LIMIT 6";
+            return stmt.executeQuery(sql);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return 0.0;
+        return null;
     }
+
+    public void readRealDataToCompare() throws IOException {
+        FileWriter file = new FileWriter("realValue.txt");
+        try(Statement stmt= conn.createStatement()) {
+            String sql = "SELECT * FROM dataset_to_compare";
+            ResultSet resultSet=  stmt.executeQuery(sql);
+
+            while(resultSet.next()){
+                for(int i = 2; i<22; i++){
+                    file.write(String.valueOf(resultSet.getDouble(i))+"\n");
+                }
+            }
+            file.close();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
 }
 
 
