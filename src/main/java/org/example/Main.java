@@ -24,9 +24,9 @@ public class Main {
 
         String location = "lucca";
         DBConnector db= new DBConnector();
-        //readData(db);
+        readData(db);
         //updateWeather(db, startPeriod, endPeriod, location);
-        makePrediction(db, pollutantsList);
+        //makePrediction(db, pollutantsList);
 
 
     }

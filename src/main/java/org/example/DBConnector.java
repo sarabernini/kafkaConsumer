@@ -262,7 +262,7 @@ public class DBConnector {
                     "from (((station_values sv left join project p on sv.stationname = p.station_name)join rh_values r on sv.stationname = r.stationname and sv.date= r.date and sv.hour= r.hour) left join\n" +
                     "      (select * from weather_prato union select * from weather_lucca) as w on sv.date = w.day)\n" +
                     "where p.location = w.location  and sv.hour = w.hour and sv.date >'"+endDate+"'" +
-                    "group by sv.date, sv.hour, monday, tuesday , wednsday ,thursday ,friday ,saturday ,sunday, prato, lucca ";
+                    "group by sv.date, sv.hour, p.location";
             stmt.executeUpdate(sql2);
             String sql3= "DROP TABLE rh_values";
             stmt.executeUpdate(sql3);
@@ -301,17 +301,21 @@ public class DBConnector {
         }
     }
 
-    public ResultSet predict(String project_name,String relation_name, String array) {
+    public void predict(String project_name,String relation_name, String array) throws IOException {
+        FileWriter file = new FileWriter("predictedValue.txt");
         try (Statement stmt = conn.createStatement()) {
             String sql= "select pgml.predict_batch( " +
                     "'"+project_name+"', " +
                     "array_agg(array"+array+")) as prediction " +
                     "from "+relation_name+" LIMIT 6";
-            return stmt.executeQuery(sql);
+            ResultSet resultSet= stmt.executeQuery(sql);
+            while(resultSet.next()){
+                file.write(String.valueOf(resultSet.getDouble(1))+"\n");
+            }
+            file.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
     }
 
     public void readRealDataToCompare() throws IOException {

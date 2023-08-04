@@ -88,7 +88,7 @@ public class Consumer {
         for(Message m: messageList){
             if(dbConnector.insertMessage(m.getMessage_type(), m.getStation_name(),m.getTimestamp(), m.getAcquisition_timestamp(),m.getGps_timestamp(),m.getLatitude(),m.getLongitude())) {
                 for (Value v : m.getValues()) {
-                    if(v.getValue()>-10 && !v.getSensor_name().equals("AUX1") && !v.getSensor_name().equals("AUX2") && !v.getSensor_name().equals("AUX3")){
+                    if(filterMessage(v, m)){
                         dbConnector.insertValues(m.getStation_name(), m.getTimestamp(), v.getSensor_name(), v.getValue());
                     }
                 }
@@ -97,6 +97,24 @@ public class Consumer {
             }
         }
 
+    }
+
+    public boolean filterMessage(Value v, Message m ){
+        if(v.getSensor_name().equals("rh")){
+            if(v.getValue()>1000){
+                v.setValue(v.getValue()/100);
+            }else if (v.getValue()>100){
+                v.setValue(v.getValue()/10);
+            }
+        }
+        if(v.getSensor_name().equals("co2") && m.getStation_name().equals("SMART151")){
+            v.setValue(v.getValue()/10);
+        }
+        return  v.getValue()>-1 &&
+                !v.getSensor_name().equals("AUX1") &&
+                !v.getSensor_name().equals("AUX2") &&
+                !v.getSensor_name().equals("AUX3") &&
+                !((v.getSensor_name().equals("pm10") || v.getSensor_name().equals("pm25") )&& v.getValue() > 900);
     }
 
 }
