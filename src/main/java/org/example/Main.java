@@ -24,9 +24,9 @@ public class Main {
 
         String location = "lucca";
         DBConnector db= new DBConnector();
-        readData(db);
+        //readData(db);
         //updateWeather(db, startPeriod, endPeriod, location);
-        //makePrediction(db, pollutantsList);
+        makePrediction(db);
 
 
     }
@@ -57,10 +57,14 @@ public class Main {
         weather.calculateAverage();
     }
 
-    public static void makePrediction(DBConnector dbConnector, ArrayList<String> pollutantList) throws SQLException, IOException {
-        Predictor predictor = new Predictor(dbConnector, pollutantList);
-        //predictor.createDataset(Timestamp.valueOf("2023-05-26 09:30:00"), Timestamp.valueOf("2023-07-19 23:59:59"));
-        System.out.println(predictor.comparePrediction("My Joint Project3", "training_dataset"));
+    public static void makePrediction(DBConnector dbConnector) throws SQLException, IOException {
+        Predictor predictor = new Predictor(dbConnector);
+       // predictor.createDataset(true);
+        predictor.training("test7","regression", "xgboost", "training_dataset_meteo");
+        System.out.println(predictor.comparePrediction("test7", "training_dataset_meteo", true));
+        //predictor.createDataset(false);
+        predictor.training("test8","regression", "xgboost", "training_dataset");
+        System.out.println(predictor.comparePrediction("test8", "training_dataset", false));
     }
 
 }

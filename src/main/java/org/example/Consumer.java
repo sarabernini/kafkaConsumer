@@ -107,14 +107,12 @@ public class Consumer {
                 v.setValue(v.getValue()/10);
             }
         }
-        if(v.getSensor_name().equals("co2") && m.getStation_name().equals("SMART151")){
-            v.setValue(v.getValue()/10);
-        }
         return  v.getValue()>-1 &&
                 !v.getSensor_name().equals("AUX1") &&
                 !v.getSensor_name().equals("AUX2") &&
                 !v.getSensor_name().equals("AUX3") &&
-                !((v.getSensor_name().equals("pm10") || v.getSensor_name().equals("pm25") )&& v.getValue() > 900);
+                !((v.getSensor_name().equals("pm10") || v.getSensor_name().equals("pm25") )&& v.getValue() > 900) &&
+                !(v.getSensor_name().equals("co2") && m.getStation_name().equals("SMART151"));
     }
 
 }
