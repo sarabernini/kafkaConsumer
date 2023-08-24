@@ -11,13 +11,6 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) throws IOException, SQLException {
-        ArrayList<String> pollutantsList = new ArrayList<>();
-        pollutantsList.add("co");
-        pollutantsList.add("co2");
-        pollutantsList.add("no2");
-        pollutantsList.add("o3");
-        pollutantsList.add("pm10");
-        pollutantsList.add("pm25");
 
         Timestamp startPeriod= Timestamp.valueOf("2023-05-26 09:30:00");
         Timestamp endPeriod= Timestamp.valueOf("2023-07-22 23:59:00");
@@ -57,14 +50,27 @@ public class Main {
         weather.calculateAverage();
     }
 
-    public static void makePrediction(DBConnector dbConnector) throws SQLException, IOException {
+    public static void makePrediction(DBConnector dbConnector) throws IOException {
+        String element_to_predict = "'max_co', 'max_no2', 'max_o3', 'max_pm10', 'max_pm25', 'avg_co', 'avg_no2', 'avg_o3', 'avg_pm10', 'avg_pm25'";
+        String element_to_predict2 = "'max_co', 'max_o3', 'max_pm10', 'max_pm25', 'avg_co', 'avg_o3', 'avg_pm10', 'avg_pm25'";
+        String element_to_predict3 = "'max_co', 'max_no2', 'max_o3', 'max_pm25', 'avg_co', 'avg_no2', 'avg_o3', 'avg_pm25'";
         Predictor predictor = new Predictor(dbConnector);
-       // predictor.createDataset(true);
-        predictor.training("test7","regression", "xgboost", "training_dataset_meteo");
-        System.out.println(predictor.comparePrediction("test7", "training_dataset_meteo", true));
+        //predictor.createDataset(true);
+        predictor.training("case1","regression", "xgboost", "training_dataset_meteo", element_to_predict);
+        //System.out.println(predictor.comparePrediction("case1", "training_dataset_meteo"));
         //predictor.createDataset(false);
-        predictor.training("test8","regression", "xgboost", "training_dataset");
-        System.out.println(predictor.comparePrediction("test8", "training_dataset", false));
+        predictor.training("case2","regression", "xgboost", "training_dataset", element_to_predict);
+        /*System.out.println(predictor.comparePrediction("case2", "training_dataset"));
+        predictor.training("case3","regression", "xgboost", "training_dataset", element_to_predict2);
+        System.out.println(predictor.comparePrediction("case3", "training_dataset"));
+        predictor.training("case4","regression", "xgboost", "training_dataset", element_to_predict3);
+        System.out.println(predictor.comparePrediction("case4", "training_dataset"));*/
+        predictor.createDailyDataset(3);
+        predictor.training("case5","regression", "xgboost", "training_daily_dataset_1", element_to_predict);
+        predictor.training("case6","regression", "xgboost", "training_daily_dataset_2", element_to_predict);
+        predictor.training("case7","regression", "xgboost", "training_daily_dataset_3", element_to_predict);
+
+
     }
 
 }

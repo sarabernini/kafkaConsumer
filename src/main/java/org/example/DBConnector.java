@@ -1,5 +1,4 @@
 package org.example;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.*;
@@ -174,9 +173,9 @@ public class DBConnector {
         }
     }
     //metodo che crea una tabella contenete per ogni stazione le medie orarie dei valori dei suoi sensori
-    public void createStationsValues() {
+    public void createStationsValues(Boolean meteo) {
         try (Statement stmt = conn.createStatement()) {
-            String sql= "select m.stationname , DATE(m.acquisition_timestamp) as date,  (EXTRACT (HOUR FROM m.acquisition_timestamp))::int as hour , " +
+            String sql = "select m.stationname , DATE(m.acquisition_timestamp) as date,  (EXTRACT (HOUR FROM m.acquisition_timestamp))::int as hour , " +
                     "avg(v5.value) as co, avg(v2.value) as co2, avg(v3.value) as no2, avg(v4.value) as o3, avg(v1.value) as pm10, avg(v6.value) as pm25, avg(v7.value) as rh\n" +
                     "into station_values\n" +
                     "from (((((((message m join values v1 on m.stationname = v1.station_name and m.time_stamp = v1.time_stamp and v1.sensorname  = 'co') join \n" +
@@ -194,23 +193,27 @@ public class DBConnector {
             e.printStackTrace();
         }
     }
+
     //metodo che unisce la tabella con i valori medi e quella con le temperature medie, restituendo i valori nella tabella dataset
-    public void createTrainingDataset(boolean meteo) {
+    public void createTrainingDataset(boolean meteo){
+
+        String meteo_string1 = "";
+        String meteo_string2 = "";
+        String meteo_string3 = "";
+        String meteo_string4 = "";
+        String meteo_string5 = "";
+
+        if (meteo) {
+            meteo_string1 = ", av.rain a_rain, av.temperature a_temperature, av.wind a_wind, av2.rain b_rain, av2.temperature b_temperature, av2.wind b_wind, av3.rain c_rain, av3.temperature c_temperature, av3.wind c_wind,av4.rain d_rain, av4.temperature d_temperature, av4.wind d_wind";
+            meteo_string2 = ", av.rain, av.temperature, av.wind, av2.rain, av2.temperature , av2.wind , av3.rain , av3.temperature , av3.wind ,av4.rain , av4.temperature, av4.wind ";
+            meteo_string3 = "_meteo";
+            meteo_string4 = "join project p on sv.stationname = p. station_name  join weather_prato wp on wp.day= sv.date and wp.hour = sv.hour and wp.location =p.location \n";
+            meteo_string5 = ", avg(wp.rain) as rain, avg(wp.temperature) as temperature, avg(wp.wind) as wind";
+        }
+
         try (Statement stmt = conn.createStatement()) {
-            String meteo_string1= "";
-            String meteo_string2 ="";
-            String meteo_string3= "";
-            String meteo_string4= "";
-            String meteo_string5= "";
-            if(meteo){
-                meteo_string1 = "join weather_prato wp on wp.day= sv.date and wp.hour = sv.hour\n ";
-                meteo_string2 = ", av.rain a_rain, av.temperature a_temperature, av.wind a_wind, av2.rain b_rain, av2.temperature b_temperature, av2.wind b_wind, av3.rain c_rain, av3.temperature c_temperature, av3.wind c_wind,av4.rain d_rain, av4.temperature d_temperature, av4.wind d_wind";
-                meteo_string3 = ", av.rain, av.temperature, av.wind, av2.rain, av2.temperature , av2.wind , av3.rain , av3.temperature , av3.wind ,av4.rain , av4.temperature, av4.wind ";
-                meteo_string4= "_meteo";
-                meteo_string5= ", avg(wp.rain) as rain, avg(wp.temperature) as temperature, avg(wp.wind) as wind";
-            }
-            String sql1= "select \n" +
-                    "sv. \"date\" ,(case \n" +
+            String sql1 = "select \n" +
+                    "sv.date , sv.stationname, (case \n" +
                     "when sv.hour >= 0 and sv.hour <=2 then 1 \n" +
                     "when sv.hour >= 3 and sv.hour <=5 then 2 \n" +
                     "when sv.hour >= 6 and sv.hour <=8 then 3  \n" +
@@ -222,62 +225,78 @@ public class DBConnector {
                     "end\n" +
                     ") as portion_of_day, \n" +
                     "(case  when sv.hour <12 then 0 else 1 end) as afternoon , avg(co) as co, avg(co2) as co2, avg(no2) as no2," +
-                    " avg(o3) as o3, avg(pm10) as pm10, avg(pm25) as pm25, avg(rh) as rh " + meteo_string5+
-                    " into average_values \n" +
-                    "from station_values sv join project p on sv.stationname = p. station_name " + meteo_string1 +
-                    "where p.location = 'prato'\n group by sv.\"date\" ,portion_of_day, afternoon";
-           stmt.executeUpdate(sql1);
-            String sql2= "select extract(isodow from av.date)::integer as day_of_week, av.afternoon, av.co as A_co, av.co2 A_co2, av.no2 A_no2, av.o3 A_o3, av.pm10 A_pm10, av.pm25 A_pm25, av.rh a_rh, \n" +
+                    " avg(o3) as o3, avg(pm10) as pm10, avg(pm25) as pm25, avg(rh) as rh " + meteo_string5 +
+                    " into average_values"+meteo_string3+" \n" +
+                    "from station_values sv " + meteo_string4 +
+                    "group by sv.date , sv.stationname, portion_of_day, afternoon";
+            stmt.executeUpdate(sql1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        try (Statement stmt = conn.createStatement()) {
+            String sql = "select extract(isodow from av.date)::integer as day_of_week, av.afternoon, av.co as A_co, av.co2 A_co2, av.no2 A_no2, av.o3 A_o3, av.pm10 A_pm10, av.pm25 A_pm25, av.rh a_rh, \n" +
                     "av2.co as B_co, av2.co2 B_co2, av2.no2 B_no2, av2.o3 B_o3, av2.pm10 B_pm10, av2.pm25 B_pm25, av2.rh b_rh,\n" +
                     "av3.co as C_co, av3.co2 C_co2, av3.no2 C_no2, av3.o3 C_o3, av3.pm10 C_pm10, av3.pm25 C_pm25, av3.rh c_rh,\n" +
-                    "av4.co as D_co, av4.co2 D_co2, av4.no2 D_no2, av4.o3 D_o3, av4.pm10 D_pm10, av4.pm25 D_pm25, av4.rh d_rh "+ meteo_string2+
-                    ", max(av5.co) as max_co, max(av5.no2) as max_no2, max(av5.o3) as max_o3, max(av5.pm10) as max_pm10, max(av5.pm25) as max_pm25\n" +
-                    "into training_dataset"+meteo_string4+"\n" +
-                    "from average_values av join average_values av2 on av.\"date\" = av2.date and av.afternoon = av2.afternoon \n" +
-                    "join average_values av3 on av.\"date\" = av3.date and av.afternoon = av3.afternoon\n" +
-                    "join average_values av4 on av.\"date\" = av4.date and av.afternoon = av4.afternoon \n" +
-                    "join average_values av5 on ((av.afternoon = 0 and av. \"date\" = av5.date and av5.afternoon= 1) or (av.afternoon = 1 and av5.date = av.date + interval '1 day' and av5.afternoon = 0))\n" +
+                    "av4.co as D_co, av4.co2 D_co2, av4.no2 D_no2, av4.o3 D_o3, av4.pm10 D_pm10, av4.pm25 D_pm25, av4.rh d_rh " + meteo_string1 +
+                    ", max(av5.co) as max_co, max(av5.no2) as max_no2, max(av5.o3) as max_o3, max(av5.pm10) as max_pm10, max(av5.pm25) as max_pm25, " +
+                    "avg(av5.co) as avg_co, avg(av5.no2) as avg_no2, avg(av5.o3) as avg_o3, avg(av5.pm10) as avg_pm10, avg(av5.pm25) as avg_pm25\n" +
+                    "into training_dataset" + meteo_string3 + "\n" +
+                    "from average_values"+meteo_string3+" av join average_values"+meteo_string3+" av2 on av.date = av2.date and av.afternoon = av2.afternoon and av.stationname = av2.stationname \n" +
+                    "join average_values"+meteo_string3+" av3 on av.date = av3.date and av.afternoon = av3.afternoon and av.stationname = av3.stationname\n" +
+                    "join average_values"+meteo_string3+" av4 on av.date = av4.date and av.afternoon = av4.afternoon and av.stationname = av4.stationname\n" +
+                    "join average_values"+meteo_string3+"  av5 on ((av.afternoon = 0 and av.date = av5.date and av5.afternoon= 1) or (av.afternoon = 1 and av5.date = av.date + interval '1 day' and av5.afternoon = 0)) and av.stationname = av5.stationname \n" +
                     "where (av.afternoon= 0 and av.portion_of_day= 1 and av2.portion_of_day = 2  and av3.portion_of_day = 3 and av4.portion_of_day = 4) or \n" +
                     "(av.afternoon= 1 and av.portion_of_day= 5 and av2.portion_of_day = 6  and av3.portion_of_day = 7 and av4.portion_of_day = 8)\n" +
                     "group by day_of_week , av.afternoon, av.co, av.co2, av.no2, av.o3, av.pm10, av.pm25, av.rh, \n" +
                     "av2.co, av2.co2, av2.no2, av2.o3, av2.pm10, av2.pm25, av2.rh, \n" +
                     "av3.co, av3.co2, av3.no2, av3.o3, av3.pm10, av3.pm25, av3.rh, \n" +
-                    "av4.co, av4.co2, av4.no2, av4.o3, av4.pm10, av4.pm25, av4.rh"+meteo_string3;
-            stmt.executeUpdate(sql2);
-            String sql3= "DROP TABLE average_values";
-            stmt.executeUpdate(sql3);
-            System.out.println("Created table in given database...");
+                    "av4.co, av4.co2, av4.no2, av4.o3, av4.pm10, av4.pm25, av4.rh" + meteo_string2;
+            stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public ArrayList<Double> readRealDataToCompare(boolean meteo){
-        String realData= "3 0 11.7208951274651 459.9695564599634 195.25665856869978 377.369851362091 357.2632172625252 " +
-                "5.2541834202374735 76.00419713384478 2.382675410914079 465.94768797569185 212.14096965977575 386.14326089731435 " +
-                "355.84764555006024 5.836723619084574 77.80989610114037 13.845939845119723 451.2069249359331 210.0451416280353 431.76073301781264 " +
-                "361.740231294194 6.813093634385008 64.59816251398853 13.02086069973809 425.47154527897226 196.6515127302326 418.1098660057433 " +
-                "360.5488946308387 6.422355591938668 57.75658890863715 0.0 23.016666666666683 133.41666666666666 0.0 20.95538461538462 " +
-                "108.2 0.0 23.91953125 142.79296875 0.0 28.519921875000012 88.859375 12.800331897164863 192.2116266918283 420.2561798442744 356.30872273916395 6.570110225569032 ";
+    public void readRealDataToCompare(boolean meteo) throws IOException {
         ArrayList<Double> result= new ArrayList<>();
-        String[] rd= realData.split(" ");
-        if(meteo){
-           for(int i=0; i<42;i++){
-               result.add(Double.parseDouble(rd[i]));
-           }
-        }else{
-            for(int i=0; i<30;i++){
-                result.add(Double.parseDouble(rd[i]));
+        String relation_name;
+        try (Statement stmt = conn.createStatement()) {
+            if(meteo){
+                relation_name= "training_dataset_meteo";
+            }else{
+                relation_name= "training_dataset";
             }
+            String sql= "SELECT * FROM "+relation_name+" LIMIT 1";
+            ResultSet resultSet= stmt.executeQuery(sql);
+            while (resultSet.next()){
+                if(meteo){
+                    FileWriter file = new FileWriter("realValueMeteo.txt");
+                    for(int i=1; i<53;i++){
+                        result.add(resultSet.getDouble(i));
+                        file.write(String.valueOf(resultSet.getDouble(i))+"\n");
+                    }
+                    file.close();
+                }else{
+                    FileWriter file = new FileWriter("realValue.txt");
+                    for(int i=1; i<41;i++){
+                        result.add(resultSet.getDouble(i));
+                        file.write(String.valueOf(resultSet.getDouble(i))+"\n");
+                    }
+                    file.close();
+                }
+            }
+            String sql2 = "DELETE FROM "+relation_name+" WHERE day_of_week = "+ result.get(0)+
+                    " and afternoon = "+result.get(1)+" and a_co= " + result.get(2)+ " and a_co2= "
+                    + result.get(3)+ " and a_no2 = "+ result.get(4)+" and a_o3 = "+ result.get(5)+" ";
+            stmt.executeUpdate(sql2);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        for(int i= 42;i<47;i++ ){
-            result.add(Double.parseDouble(rd[i]));
-        }
-        return result;
     }
 
 
-    public void training(String project_name, String task, String algorithm, String relation_name) {
+    public void training(String project_name, String task, String algorithm, String relation_name, String element_to_predict) {
         try (Statement stmt = conn.createStatement()) {
             String sql= "SELECT * FROM pgml.train_joint(\n" +
                     "'"+project_name+"',\n" +
@@ -286,12 +305,12 @@ public class DBConnector {
                     "    algorithm => '"+algorithm+"',\n" +
                     "    preprocess => '{\n" +
                     "\t\t\"wind\": {\"impute\": \"mode\"}}',\n" +
-                    "  \ty_column_name => ARRAY['max_co', 'max_no2', 'max_o3', 'max_pm10', 'max_pm25'],\n" +
+                    "  \ty_column_name => ARRAY["+element_to_predict+"],\n" +
                     "  \tsearch => 'grid', \n" +
                     "    search_params => '{\n" +
-                    "        \"max_depth\": [ 4, 10, 20, 30] ,\n" +
-                    "        \"n_estimators\": [20, 40, 80, 100],\n" +
-                    "\t\t\"learning_rate\": [0.1,0.2, 0.3, 0.4],\n" +
+                    "        \"max_depth\": [ 10, 20, 30, 40] ,\n" +
+                    "        \"n_estimators\": [40, 80, 1600, 200],\n" +
+                    "\t\t\"learning_rate\": [0.2, 0.4, 0.6, 0.8],\n" +
                     "\t\t\"test_size\": [0.05, 0.10, 0.20, 0.25]\n" +
                     "   }'\n" +
                     ")";
@@ -321,6 +340,42 @@ public class DBConnector {
         }
     }
 
+    public void createDailyDataset(int i) {
+        try (Statement stmt = conn.createStatement()) {
+            String sql= "select extract(isodow from av.date)::integer as day_of_week, av.co as A_co, av.co2 A_co2, av.no2 A_no2, av.o3 A_o3, av.pm10 A_pm10, av.pm25 A_pm25, av.rh A_rh, " +
+                    "av2.co as B_co, av2.co2 B_co2, av2.no2 B_no2, av2.o3 B_o3, av2.pm10 B_pm10, av2.pm25 B_pm25, av2.rh B_rh, " +
+                    "av3.co as C_co, av3.co2 C_co2, av3.no2 C_no2, av3.o3 C_o3, av3.pm10 C_pm10, av3.pm25 C_pm25, av3.rh C_rh, " +
+                    "av4.co as D_co, av4.co2 D_co2, av4.no2 D_no2, av4.o3 D_o3, av4.pm10 D_pm10, av4.pm25 D_pm25, av4.rh D_rh, "+
+                    "av5.co as E_co, av5.co2 E_co2, av5.no2 E_no2, av5.o3 E_o3, av5.pm10 E_pm10, av5.pm25 E_pm25, av5.rh E_rh, "+
+                    "av6.co as F_co, av6.co2 F_co2, av6.no2 F_no2, av6.o3 F_o3, av6.pm10 F_pm10, av6.pm25 F_pm25, av6.rh F_rh, "+
+                    "av7.co as G_co, av7.co2 G_co2, av7.no2 G_no2, av7.o3 G_o3, av7.pm10 G_pm10, av7.pm25 G_pm25, av7.rh G_rh, "+
+                    "av8.co as H_co, av8.co2 H_co2, av8.no2 H_no2, av8.o3 H_o3, av8.pm10 H_pm10, av8.pm25 H_pm25, av8.rh H_rh, "+
+                    "max(av9.co) as max_co, max(av9.no2) as max_no2, max(av9.o3) as max_o3, max(av9.pm10) as max_pm10, max(av9.pm25) as max_pm25, " +
+                    "avg(av9.co) as avg_co, avg(av9.no2) as avg_no2, avg(av9.o3) as avg_o3, avg(av9.pm10) as avg_pm10, avg(av9.pm25) as avg_pm25\n" +
+                    "into training_daily_dataset_"+i+
+                    "\n from average_values av join average_values av2 on av.date = av2.date and av.stationname = av2.stationname \n" +
+                    "join average_values av3 on av.date = av3.date  and av.stationname = av3.stationname\n" +
+                    "join average_values av4 on av.date = av4.date  and av.stationname = av4.stationname\n" +
+                    "join average_values av5 on av.date = av5.date  and av.stationname = av5.stationname\n" +
+                    "join average_values av6 on av.date = av6.date  and av.stationname = av6.stationname\n" +
+                    "join average_values av7 on av.date = av7.date  and av.stationname = av7.stationname\n" +
+                    "join average_values av8 on av.date = av8.date  and av.stationname = av8.stationname\n" +
+                    "join average_values  av9 on av9.date = av.date + interval '"+i+" day' and av.stationname = av9.stationname \n" +
+                    "where av.portion_of_day = 1 and av2.portion_of_day = 2  and av3.portion_of_day = 3 and av4.portion_of_day = 4 " +
+                    "and av5.portion_of_day = 5 and av6.portion_of_day = 6 and av7.portion_of_day = 7 and av8.portion_of_day = 8 " +
+                    "group by day_of_week ,av.co, av.co2, av.no2, av.o3, av.pm10, av.pm25, av.rh, \n" +
+                    "av2.co, av2.co2, av2.no2, av2.o3, av2.pm10, av2.pm25, av2.rh, \n" +
+                    "av3.co, av3.co2, av3.no2, av3.o3, av3.pm10, av3.pm25, av3.rh, \n" +
+                    "av4.co, av4.co2, av4.no2, av4.o3, av4.pm10, av4.pm25, av4.rh, "+
+                    "av5.co, av5.co2, av5.no2, av5.o3, av5.pm10, av5.pm25, av5.rh, "+
+                    "av6.co, av6.co2, av6.no2, av6.o3, av6.pm10, av6.pm25, av6.rh, "+
+                    "av7.co, av7.co2, av7.no2, av7.o3, av7.pm10, av7.pm25, av7.rh, "+
+                    "av8.co, av8.co2, av8.no2, av8.o3, av8.pm10, av8.pm25, av8.rh";
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
 
 
