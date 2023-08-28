@@ -260,36 +260,34 @@ public class DBConnector {
 
     public void readRealDataToCompare(boolean meteo) throws IOException {
         ArrayList<Double> result= new ArrayList<>();
+        int number_of_column;
+        FileWriter file;
         String relation_name;
         try (Statement stmt = conn.createStatement()) {
             if(meteo){
                 relation_name= "training_dataset_meteo";
+                file = new FileWriter("realValueMeteo.txt");
+                number_of_column= 52;
             }else{
                 relation_name= "training_dataset";
+                file = new FileWriter("realValue.txt");
+                number_of_column= 40;
             }
-            String sql= "SELECT * FROM "+relation_name+" LIMIT 1";
+            String sql= "SELECT * FROM "+relation_name+" order by random() LIMIT 10";
             ResultSet resultSet= stmt.executeQuery(sql);
             while (resultSet.next()){
-                if(meteo){
-                    FileWriter file = new FileWriter("realValueMeteo.txt");
-                    for(int i=1; i<53;i++){
-                        result.add(resultSet.getDouble(i));
-                        file.write(String.valueOf(resultSet.getDouble(i))+"\n");
-                    }
-                    file.close();
-                }else{
-                    FileWriter file = new FileWriter("realValue.txt");
-                    for(int i=1; i<41;i++){
-                        result.add(resultSet.getDouble(i));
-                        file.write(String.valueOf(resultSet.getDouble(i))+"\n");
-                    }
-                    file.close();
+                for(int i=1; i<number_of_column+1;i++){
+                    result.add(resultSet.getDouble(i));
+                    file.write(String.valueOf(resultSet.getDouble(i))+"\n");
                 }
             }
-            String sql2 = "DELETE FROM "+relation_name+" WHERE day_of_week = "+ result.get(0)+
-                    " and afternoon = "+result.get(1)+" and a_co= " + result.get(2)+ " and a_co2= "
-                    + result.get(3)+ " and a_no2 = "+ result.get(4)+" and a_o3 = "+ result.get(5)+" ";
-            stmt.executeUpdate(sql2);
+            file.close();
+            for(int i= 0; i<10; i++){
+                String sql2 = "DELETE FROM "+relation_name+" WHERE day_of_week = "+ result.get(0+number_of_column*i)+
+                        " and afternoon = "+result.get(1+number_of_column*i)+" and a_co= " + result.get(2+number_of_column*i)+ " and a_co2= "
+                        + result.get(3+number_of_column*i)+ " and a_no2 = "+ result.get(4+number_of_column*i)+" and a_o3 = "+ result.get(5+number_of_column*i)+" ";
+                stmt.executeUpdate(sql2);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -310,10 +308,13 @@ public class DBConnector {
                     "    search_params => '{\n" +
                     "        \"max_depth\": [ 10, 20, 30, 40] ,\n" +
                     "        \"n_estimators\": [40, 80, 1600, 200],\n" +
-                    "\t\t\"learning_rate\": [0.2, 0.4, 0.6, 0.8],\n" +
+                    "\t\t\"learning_rate\": [0.001, 0.01, 0.05, 0.1],\n" +
                     "\t\t\"test_size\": [0.05, 0.10, 0.20, 0.25]\n" +
                     "   }'\n" +
                     ")";
+
+            // "\t\t\"learning_rate\": [0.01, 0.001, 0.0001, 0.00001],\n"
+
             ResultSet resultSet= stmt.executeQuery(sql);
             while (resultSet.next()){
                 System.out.println("project: "+resultSet.getString("project")+", task: "+ resultSet.getString("task")+", algorithm: "+ resultSet.getString("algorithm")+", deployed: " + resultSet.getBoolean("deployed"));
@@ -329,7 +330,7 @@ public class DBConnector {
             String sql= "select pgml.predict_batch( " +
                     "'"+project_name+"', " +
                     "array_agg(array"+array+")) as prediction " +
-                    "from "+relation_name+" LIMIT 5";
+                    "from "+relation_name+" LIMIT 10";
             ResultSet resultSet= stmt.executeQuery(sql);
             while(resultSet.next()){
                 file.write(String.valueOf(resultSet.getDouble(1))+"\n");
@@ -341,6 +342,7 @@ public class DBConnector {
     }
 
     public void createDailyDataset(int i) {
+        int number_of_column=67;
         try (Statement stmt = conn.createStatement()) {
             String sql= "select extract(isodow from av.date)::integer as day_of_week, av.co as A_co, av.co2 A_co2, av.no2 A_no2, av.o3 A_o3, av.pm10 A_pm10, av.pm25 A_pm25, av.rh A_rh, " +
                     "av2.co as B_co, av2.co2 B_co2, av2.no2 B_no2, av2.o3 B_o3, av2.pm10 B_pm10, av2.pm25 B_pm25, av2.rh B_rh, " +
@@ -371,9 +373,33 @@ public class DBConnector {
                     "av6.co, av6.co2, av6.no2, av6.o3, av6.pm10, av6.pm25, av6.rh, "+
                     "av7.co, av7.co2, av7.no2, av7.o3, av7.pm10, av7.pm25, av7.rh, "+
                     "av8.co, av8.co2, av8.no2, av8.o3, av8.pm10, av8.pm25, av8.rh";
-            stmt.executeUpdate(sql);
+            //stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+
+        try (Statement stmt = conn.createStatement()) {
+            ArrayList<Double> result= new ArrayList<>();
+            String sql= "SELECT * FROM training_daily_dataset_"+i+" order by random() LIMIT 10";
+            ResultSet resultSet= stmt.executeQuery(sql);
+            FileWriter file = new FileWriter("realValue"+i+"Day.txt");
+            while (resultSet.next()){
+                for(int j=1; j<68;j++){
+                    result.add(resultSet.getDouble(j));
+                    file.write(String.valueOf(resultSet.getDouble(j))+"\n");
+                }
+            }
+            file.close();
+            for(int k= 0; k<10; k++){
+                String sql2 = "DELETE FROM training_daily_dataset_"+i+" WHERE day_of_week = "+ result.get(0+number_of_column*k)+
+                        "  and a_co= " + result.get(1+number_of_column*k)+ " and a_co2= "
+                        + result.get(2+number_of_column*k)+ " and a_no2 = "+ result.get(3+number_of_column*k)+" and a_o3 = "+ result.get(4+number_of_column*k)+" ";
+                stmt.executeUpdate(sql2);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
