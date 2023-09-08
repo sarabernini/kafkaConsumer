@@ -1,0 +1,191 @@
+[
+    {
+        "project_name": "UIA",
+        "station_id": 34,
+        "station_name": "SMART07",
+        "latitude": 43.87013626098633,
+        "longitude": 11.05392837524414
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 42,
+        "station_name": "SMART14",
+        "latitude": 43.9012565612793,
+        "longitude": 11.110756874084473
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 43,
+        "station_name": "SMART15",
+        "latitude": 43.89118576049805,
+        "longitude": 11.077662467956543
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 47,
+        "station_name": "SMART19",
+        "latitude": 43.884559631347656,
+        "longitude": 11.05473518371582
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 49,
+        "station_name": "SMART21",
+        "latitude": 43.88977813720703,
+        "longitude": 11.063725471496582
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 51,
+        "station_name": "SMART23",
+        "latitude": 43.87168884277344,
+        "longitude": 11.06173038482666
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 53,
+        "station_name": "SMART25",
+        "latitude": 43.85274124145508,
+        "longitude": 11.077384948730469
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 69,
+        "station_name": "SMART41",
+        "latitude": 43.88401794433594,
+        "longitude": 11.083123207092285
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 79,
+        "station_name": "SMART51",
+        "latitude": 43.8450813293457,
+        "longitude": 11.049211502075195
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 80,
+        "station_name": "SMART52",
+        "latitude": 43.871620178222656,
+        "longitude": 11.063481330871582
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 87,
+        "station_name": "SMART59",
+        "latitude": 43.862205505371094,
+        "longitude": 11.14206314086914
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 89,
+        "station_name": "SMART61",
+        "latitude": 43.86085891723633,
+        "longitude": 11.10672378540039
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 100,
+        "station_name": "SMART72",
+        "latitude": 43.877750396728516,
+        "longitude": 11.102861404418945
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 107,
+        "station_name": "SMART79",
+        "latitude": 43.8773078918457,
+        "longitude": 11.064031600952148
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 23284701,
+        "station_name": "SMART99",
+        "latitude": 43.87266540527344,
+        "longitude": 11.062226295471191
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 23290319,
+        "station_name": "SMART104",
+        "latitude": 43.87007141113281,
+        "longitude": 11.063291549682617
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 23298562,
+        "station_name": "SMART102",
+        "latitude": 43.87392666666666,
+        "longitude": 11.082126666666666
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 23300358,
+        "station_name": "SMART105",
+        "latitude": 43.83609390258789,
+        "longitude": 11.107111930847168
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 23301399,
+        "station_name": "SMART112",
+        "latitude": 43.87395477294922,
+        "longitude": 11.08469009399414
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 23302011,
+        "station_name": "SMART100",
+        "latitude": 43.8856201171875,
+        "longitude": 11.085142135620117
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 23308564,
+        "station_name": "SMART111",
+        "latitude": 43.86122512817383,
+        "longitude": 11.044981956481934
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 25473218,
+        "station_name": "SMART94",
+        "latitude": 43.89803695678711,
+        "longitude": 11.055896759033203
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 27424053,
+        "station_name": "SMART127",
+        "latitude": 43.86912155151367,
+        "longitude": 11.087761878967285
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 31499869,
+        "station_name": "SMART130",
+        "latitude": 43.8615083,
+        "longitude": 11.08946
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 31501097,
+        "station_name": "SMART128",
+        "latitude": 43.86876678466797,
+        "longitude": 11.087512969970703
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 31515046,
+        "station_name": "SMART129",
+        "latitude": 43.869129,
+        "longitude": 11.088801
+    },
+    {
+        "project_name": "UIA",
+        "station_id": 34300089,
+        "station_name": "SMART87",
+        "latitude": 43.88552474975586,
+        "longitude": 11.084601402282715
+    }
+]

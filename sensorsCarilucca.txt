@@ -1,0 +1,100 @@
+[
+    {
+        "project_name": "Carilucca",
+        "station_id": 44,
+        "station_name": "SMART16",
+        "latitude": 43.83987045288086,
+        "longitude": 10.572897911071777
+    },
+    {
+        "project_name": "Carilucca",
+        "station_id": 52,
+        "station_name": "SMART24",
+        "latitude": 43.8427848815918,
+        "longitude": 10.51136302947998
+    },
+    {
+        "project_name": "Carilucca",
+        "station_id": 54,
+        "station_name": "SMART26",
+        "latitude": 43.83262252807617,
+        "longitude": 10.50059700012207
+    },
+    {
+        "project_name": "Carilucca",
+        "station_id": 88,
+        "station_name": "SMART60",
+        "latitude": 43.81502914428711,
+        "longitude": 10.674449920654297
+    },
+    {
+        "project_name": "Carilucca",
+        "station_id": 94,
+        "station_name": "SMART66",
+        "latitude": 43.8155632019043,
+        "longitude": 10.672438621520996
+    },
+    {
+        "project_name": "Carilucca",
+        "station_id": 95,
+        "station_name": "SMART67",
+        "latitude": 43.843055725097656,
+        "longitude": 10.620737075805664
+    },
+    {
+        "project_name": "Carilucca",
+        "station_id": 96,
+        "station_name": "SMART68",
+        "latitude": 43.819461822509766,
+        "longitude": 10.688703536987305
+    },
+    {
+        "project_name": "Carilucca",
+        "station_id": 97,
+        "station_name": "SMART69",
+        "latitude": 43.837772369384766,
+        "longitude": 10.617859840393066
+    },
+    {
+        "project_name": "Carilucca",
+        "station_id": 98,
+        "station_name": "SMART70",
+        "latitude": 43.82197189331055,
+        "longitude": 10.643050193786621
+    },
+    {
+        "project_name": "Carilucca",
+        "station_id": 99,
+        "station_name": "SMART71",
+        "latitude": 43.822723388671875,
+        "longitude": 10.616518020629883
+    },
+    {
+        "project_name": "Carilucca",
+        "station_id": 28991564,
+        "station_name": "SMART103",
+        "latitude": 43.8008918762207,
+        "longitude": 10.575886726379395
+    },
+    {
+        "project_name": "Carilucca",
+        "station_id": 34300153,
+        "station_name": "SMART107",
+        "latitude": 43.83440017700195,
+        "longitude": 10.5225830078125
+    },
+    {
+        "project_name": "Carilucca",
+        "station_id": 108216492,
+        "station_name": "SMART140",
+        "latitude": 43.89243698120117,
+        "longitude": 10.556503295898438
+    },
+    {
+        "project_name": "Carilucca",
+        "station_id": 130679630,
+        "station_name": "SMART151",
+        "latitude": 43.81570053100586,
+        "longitude": 10.498038291931152
+    }
+]

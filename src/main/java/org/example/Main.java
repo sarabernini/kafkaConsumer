@@ -19,7 +19,9 @@ public class Main {
         DBConnector db= new DBConnector();
         //readData(db);
         //updateWeather(db, startPeriod, endPeriod, location);
-        makePrediction(db);
+        db.readDataToCompare();
+        //makePrediction(db);
+
 
 
     }
@@ -55,25 +57,36 @@ public class Main {
         String element_to_predict2 = "'max_co', 'max_o3', 'max_pm10', 'max_pm25', 'avg_co', 'avg_o3', 'avg_pm10', 'avg_pm25'";
         String element_to_predict3 = "'max_co', 'max_no2', 'max_o3', 'max_pm25', 'avg_co', 'avg_no2', 'avg_o3', 'avg_pm25'";
         Predictor predictor = new Predictor(dbConnector);
-        /*predictor.createDataset(true);
-        predictor.training("case1","regression", "xgboost", "training_dataset_meteo", element_to_predict);
-        predictor.comparePrediction("case1", "training_dataset_meteo");
-        predictor.createDataset(false);
-        predictor.training("case2","regression", "xgboost", "training_dataset", element_to_predict);
-        predictor.comparePrediction("case2", "training_dataset");
-        predictor.training("case3","regression", "xgboost", "training_dataset", element_to_predict2);
-        predictor.comparePrediction("case3", "training_dataset");
-        predictor.training("case4","regression", "xgboost", "training_dataset", element_to_predict3);
-        predictor.comparePrediction("case4", "training_dataset");*/
-        predictor.createDailyDataset(1);
-        predictor.createDailyDataset(2);
-        predictor.createDailyDataset(3);/*
-        predictor.training("case5","regression", "xgboost", "training_daily_dataset_1", element_to_predict);
-        predictor.training("case6","regression", "xgboost", "training_daily_dataset_2", element_to_predict);
-        predictor.training("case7","regression", "xgboost", "training_daily_dataset_3", element_to_predict);*/
-        predictor.comparePrediction("case5", "training_daily_dataset_1");
-        predictor.comparePrediction("case6", "training_daily_dataset_1");
-        predictor.comparePrediction("case7", "training_daily_dataset_1");
+        //predictor.createDataset(true);
+        //predictor.training("caso1","regression", "xgboost", "training_dataset_meteo", element_to_predict);
+        //predictor.comparePrediction("caso1");
+        //predictor.createDataset(false);
+        //predictor.training("caso2","regression", "xgboost", "training_dataset", element_to_predict);
+        //predictor.comparePrediction("caso2");
+
+        //predictor.training("caso3","regression", "xgboost", "training_dataset", element_to_predict2);
+        //predictor.comparePrediction("caso3");
+        //predictor.training("caso4","regression", "xgboost", "training_dataset", element_to_predict3);
+        //predictor.comparePrediction("caso4");
+
+        //predictor.createDailyDataset(1);
+        //predictor.createDailyDataset(2);
+        //predictor.createDailyDataset(5);
+        //predictor.training("caso5","regression", "xgboost", "training_daily_dataset_1", element_to_predict);
+        //predictor.training("caso6","regression", "xgboost", "training_daily_dataset_2", element_to_predict);
+        //predictor.training("caso7","regression", "xgboost", "training_daily_dataset_3", element_to_predict);
+        //predictor.training("caso8","regression", "xgboost", "training_daily_dataset_5", element_to_predict);
+
+        //predictor.comparePrediction("caso5");
+        //predictor.comparePrediction("caso6");
+        //predictor.comparePrediction("caso7");
+        //predictor.comparePrediction("caso8");
+
+        predictor.createDataset(true);
+        predictor.training("caso9", "regression", "xgboost", "training_dataset_meteo2", element_to_predict);
+
+
+
 
 
 
