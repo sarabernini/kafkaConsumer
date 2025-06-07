@@ -21,9 +21,9 @@ public class DBConnector {
 
     //constructor
     public DBConnector() throws SQLException {
-        url = "jdbc:postgresql://136.243.101.139:5433/postgres";
-        user = "postgres";
-        pass = "***REDACTED***";
+        url = "";
+        user = "";
+        pass = "";
         this.conn = DriverManager.getConnection(url, user, pass);
     }
 
